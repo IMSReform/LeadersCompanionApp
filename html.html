@@ -1533,6 +1533,7 @@ function hideBootSplash(){
           <div>
             <label style="font-size:11px;color:var(--text3);display:block;margin-bottom:3px" data-tp="set_org_level">Niveau in de organisatie</label>
             <select id="set-org-level" onchange="saveOrgSettings();renderWorkersList();" style="width:100%;padding:9px 12px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface);font-size:13px;color:var(--text)">
+              <option value="district" data-tp="orglevel_district">District</option>
               <option value="field" data-tp="orglevel_field">Veld</option>
               <option value="union" data-tp="orglevel_union">Unie</option>
               <option value="division" data-tp="orglevel_division">Divisie</option>
@@ -7645,6 +7646,33 @@ function loadDemoWorkers(skipConfirm){
 // button and GC report look like once several Fields/Unions from different
 // countries have reported their numbers upward - no names or per-worker
 // detail, just the rolled-up counts each sub-unit chose to share.
+// Demo sub-unit names/countries were Dutch-only ("Noord Veld", "Nederland Veld",
+// "Frankrijk Unie"...) whatever the app language - localise them when the demo
+// is generated.
+var _DEMO_UNIT={
+  field:{nl:'Veld',en:'Field',es:'Campo',fr:'Champ',de:'Feld',ro:'Câmp',it:'Campo',pt:'Campo'},
+  union:{nl:'Unie',en:'Union',es:'Unión',fr:'Union',de:'Vereinigung',ro:'Uniune',it:'Unione',pt:'União'}
+};
+var _DEMO_DIR={
+  'Noord':{nl:'Noord',en:'North',es:'Norte',fr:'Nord',de:'Nord',ro:'Nord',it:'Nord',pt:'Norte'},
+  'Zuid':{nl:'Zuid',en:'South',es:'Sur',fr:'Sud',de:'Süd',ro:'Sud',it:'Sud',pt:'Sul'},
+  'Oost':{nl:'Oost',en:'East',es:'Este',fr:'Est',de:'Ost',ro:'Est',it:'Est',pt:'Leste'}
+};
+var _DEMO_COUNTRY={
+  'Nederland':{nl:'Nederland',en:'Netherlands',es:'Países Bajos',fr:'Pays-Bas',de:'Niederlande',ro:'Țările de Jos',it:'Paesi Bassi',pt:'Países Baixos'},
+  'België':{nl:'België',en:'Belgium',es:'Bélgica',fr:'Belgique',de:'Belgien',ro:'Belgia',it:'Belgio',pt:'Bélgica'},
+  'Frankrijk':{nl:'Frankrijk',en:'France',es:'Francia',fr:'France',de:'Frankreich',ro:'Franța',it:'Francia',pt:'França'},
+  'Duitsland':{nl:'Duitsland',en:'Germany',es:'Alemania',fr:'Allemagne',de:'Deutschland',ro:'Germania',it:'Germania',pt:'Alemanha'},
+  'Spanje':{nl:'Spanje',en:'Spain',es:'España',fr:'Espagne',de:'Spanien',ro:'Spania',it:'Spagna',pt:'Espanha'}
+};
+function demoPick(m){ return (m&&(m[LANG]||m.en||m.nl))||''; }
+function demoCountry(c){ return demoPick(_DEMO_COUNTRY[c])||c; }
+function demoDir(d){ return demoPick(_DEMO_DIR[d])||d; }
+// "Noord Veld" (nl/en word order: prefix first) vs "Campo Norte" (others: unit first)
+function demoUnitName(prefix,kind){
+  var unit=demoPick(_DEMO_UNIT[kind]);
+  return (LANG==='nl'||LANG==='en')?(prefix+' '+unit):(unit+' '+prefix);
+}
 function loadDemoSubUnits(mode){
   var isUnionDemo=(mode==='union');
   if(Object.keys(workers).length>0){
@@ -7655,7 +7683,7 @@ function loadDemoSubUnits(mode){
   if(isUnionDemo){ loadDemoWorkers(true); } else { workers={}; }
   var year=new Date().getFullYear();
   var units=[
-    { name:'Nederland Veld', orgLevel:'field', country:'Nederland',
+    { name:demoUnitName(demoCountry('Nederland'),'field'), orgLevel:'field', country:demoCountry('Nederland'),
       counts:{churches:6,members:145,candidates:4,students:12,sabbath:18,youth:22,children:14,interested:31,contacts:58,workers:5,pastors:2,missionhouses:1,buildings:4},
       categoryBreakdown:{'LMC - Literature and Multimedia':24},
       perWorkerNumeric:[
@@ -7664,7 +7692,7 @@ function loadDemoSubUnits(mode){
         {name:'Marcus van Dijk',bibleStudies:9,evangelismActivities:3,multimedia:false,isPastor:true}
       ]
     },
-    { name:'België Veld', orgLevel:'field', country:'België',
+    { name:demoUnitName(demoCountry('België'),'field'), orgLevel:'field', country:demoCountry('België'),
       counts:{churches:3,members:62,candidates:2,students:7,sabbath:9,youth:11,children:6,interested:15,contacts:24,workers:2,pastors:1,missionhouses:0,buildings:2},
       categoryBreakdown:{'LMC - Literature and Multimedia':8},
       perWorkerNumeric:[
@@ -7672,7 +7700,7 @@ function loadDemoSubUnits(mode){
         {name:'Daniel Müller',bibleStudies:11,evangelismActivities:9,multimedia:false,isPastor:false}
       ]
     },
-    { name:'Frankrijk Unie', orgLevel:'union', country:'Frankrijk',
+    { name:demoUnitName(demoCountry('Frankrijk'),'union'), orgLevel:'union', country:demoCountry('Frankrijk'),
       counts:{churches:14,members:340,candidates:9,students:28,sabbath:41,youth:53,children:37,interested:72,contacts:130,workers:11,pastors:5,missionhouses:2,buildings:9},
       categoryBreakdown:{'LMC - Literature and Multimedia':46,'Werkzaamheden - Divisie/GC':30},
       perWorkerNumeric:[
@@ -7681,7 +7709,7 @@ function loadDemoSubUnits(mode){
         {name:'Philippe Lambert',bibleStudies:6,evangelismActivities:4,multimedia:false,isPastor:true}
       ]
     },
-    { name:'Duitsland Veld', orgLevel:'field', country:'Duitsland',
+    { name:demoUnitName(demoCountry('Duitsland'),'field'), orgLevel:'field', country:demoCountry('Duitsland'),
       counts:{churches:5,members:118,candidates:3,students:10,sabbath:15,youth:19,children:12,interested:26,contacts:47,workers:4,pastors:2,missionhouses:1,buildings:3},
       categoryBreakdown:{'LMC - Literature and Multimedia':17},
       perWorkerNumeric:[
@@ -7689,7 +7717,7 @@ function loadDemoSubUnits(mode){
         {name:'Lukas Schmidt',bibleStudies:19,evangelismActivities:12,multimedia:false,isPastor:false}
       ]
     },
-    { name:'Spanje Unie', orgLevel:'union', country:'Spanje',
+    { name:demoUnitName(demoCountry('Spanje'),'union'), orgLevel:'union', country:demoCountry('Spanje'),
       counts:{churches:9,members:210,candidates:6,students:19,sabbath:27,youth:34,children:21,interested:48,contacts:85,workers:7,pastors:3,missionhouses:1,buildings:6},
       categoryBreakdown:{'LMC - Literature and Multimedia':29},
       perWorkerNumeric:[
@@ -7701,7 +7729,7 @@ function loadDemoSubUnits(mode){
   ];
   if(isUnionDemo){
     units=[
-      { name:'Noord Veld', orgLevel:'field', country:'Nederland',
+      { name:demoUnitName(demoDir('Noord'),'field'), orgLevel:'field', country:demoCountry('Nederland'),
         counts:{churches:5,members:121,candidates:3,students:10,sabbath:14,youth:18,children:11,interested:24,contacts:47,workers:4,pastors:2,missionhouses:1,buildings:3},
         categoryBreakdown:{'LMC - Literature and Multimedia':14},
         perWorkerNumeric:[
@@ -7711,7 +7739,7 @@ function loadDemoSubUnits(mode){
           {name:'Anke Visser',bibleStudies:17,evangelismActivities:11,multimedia:true,isPastor:false}
         ]
       },
-      { name:'Zuid Veld', orgLevel:'field', country:'Nederland',
+      { name:demoUnitName(demoDir('Zuid'),'field'), orgLevel:'field', country:demoCountry('Nederland'),
         counts:{churches:4,members:96,candidates:2,students:8,sabbath:11,youth:15,children:9,interested:19,contacts:38,workers:3,pastors:1,missionhouses:0,buildings:2},
         categoryBreakdown:{'LMC - Literature and Multimedia':9},
         perWorkerNumeric:[
@@ -7720,7 +7748,7 @@ function loadDemoSubUnits(mode){
           {name:'Gerrit Smit',bibleStudies:6,evangelismActivities:2,multimedia:false,isPastor:true}
         ]
       },
-      { name:'Oost Veld', orgLevel:'field', country:'Nederland',
+      { name:demoUnitName(demoDir('Oost'),'field'), orgLevel:'field', country:demoCountry('Nederland'),
         counts:{churches:3,members:64,candidates:2,students:6,sabbath:8,youth:10,children:5,interested:13,contacts:26,workers:2,pastors:1,missionhouses:1,buildings:2},
         categoryBreakdown:{'LMC - Literature and Multimedia':6},
         perWorkerNumeric:[
@@ -7761,13 +7789,13 @@ function loadDemoSubUnits(mode){
   function demoUnionChildren(u){
     var pw=u.perWorkerNumeric||[]; var half=Math.ceil(pw.length/2);
     var groups=[pw.slice(0,half),pw.slice(half)].filter(function(g){return g.length;});
-    var names=[u.country+' Noord',u.country+' Zuid'];
+    var names=[u.country+' '+demoDir('Noord'),u.country+' '+demoDir('Zuid')];
     return groups.map(function(g,i){
       var share=g.length/Math.max(1,pw.length);
       var c={}; Object.keys(u.counts).forEach(function(k){c[k]=Math.round((u.counts[k]||0)*share);});
       c.workers=g.length;
       var fake={name:names[i],counts:c,perWorkerNumeric:g};
-      return {unitName:names[i]+' Veld',orgLevel:'field',country:u.country,counts:c,activity:demoActivityFor(fake,i),perWorkerNumeric:g,children:[]};
+      return {unitName:demoUnitName(names[i],'field'),orgLevel:'field',country:u.country,counts:c,activity:demoActivityFor(fake,i),perWorkerNumeric:g,children:[]};
     });
   }
   units.forEach(function(u,ui){
@@ -11307,13 +11335,23 @@ function changeRapportMonth(delta){
 // sub-units (Fields/Unions reporting up), grouped by country. Rows of the
 // "other" kind stay stored (nothing is deleted) but are hidden so switching
 // level never shows a confusing mix.
+// A Union hosts the Fields that report to it; a Field hosts the Districts that
+// report to it (District = lowest level: District -> Field -> Union -> Division -> GC).
+function presHostsSubUnits(){
+  var l=(orgSettings&&orgSettings.orgLevel)||'field';
+  if(l==='union') return true;
+  if(l==='field') return Object.keys(workers).some(function(wn){return workers[wn]&&workers[wn].isSubUnit;});
+  return false;
+}
+// Picks the Union wording (Fields) or the Field wording (Districts) for a label key.
+function presSubKey(unionKey,fieldKey){ return (orgSettings&&orgSettings.orgLevel==='field')?fieldKey:unionKey; }
 function presVisibleWorkerNames(){
   var lvl=(orgSettings&&orgSettings.orgLevel)||'field';
   var wantSub=(lvl==='division'||lvl==='gc');
   return Object.keys(workers).filter(function(wn){
     var w=workers[wn]; if(!w) return false;
     // Union: the Fields that report in AND the union's own workers.
-    if(lvl==='union') return true;
+    if(presHostsSubUnits()) return true;
     return wantSub?!!w.isSubUnit:!w.isSubUnit;
   });
 }
@@ -11322,7 +11360,7 @@ function presVisibleWorkerNames(){
 // ── UNION HIERARCHY (Gabriel): top tabs = Fields (+ the Union's own workers),
 // under a Field: Overview / all its workers / one tab per worker. ──
 function unionHierActive(names){
-  return orgSettings.orgLevel==='union'&&names.some(function(wn){return workers[wn]&&workers[wn].isSubUnit;});
+  return presHostsSubUnits()&&names.some(function(wn){return workers[wn]&&workers[wn].isSubUnit;});
 }
 function unionHierFieldNames(names){ return names.filter(function(wn){return workers[wn]&&workers[wn].isSubUnit;}).sort(function(a,b){return a.localeCompare(b);}); }
 function unionHierOwnNames(names){ return names.filter(function(wn){return workers[wn]&&!workers[wn].isSubUnit;}); }
@@ -11534,14 +11572,14 @@ function renderWorkersList(){
   // picker, stat tiles, chart+category breakdown, worker comparison
   // (moved from Dashboard, since this is reporting detail, not a
   // daily-use view), followed by the Afwezig/Actief worker list below.
-  var _suOrg=(orgSettings.orgLevel==='division'||orgSettings.orgLevel==='gc'||orgSettings.orgLevel==='union')&&workerNames.some(function(wn){return workers[wn]&&workers[wn].isSubUnit;});
+  var _suOrg=(orgSettings.orgLevel==='division'||orgSettings.orgLevel==='gc'||presHostsSubUnits())&&workerNames.some(function(wn){return workers[wn]&&workers[wn].isSubUnit;});
   // #1310: Division/GC get their own overview (totals, hours by category %,
   // mix per country, trend, ranking) instead of the per-worker report block.
   var _isUnion=_suOrg; // Union, Division and GC get the two tabs; Field never does
   var _unionWorkersTab=_isUnion&&_suUnionTab==='workers';
   var h=_isUnion?suUnionTabsHtml():'';
   if(_unionWorkersTab){
-    h+=buildUnionWorkersHtml()||('<div class="card" style="padding:14px;font-size:13px;color:var(--text3)">'+tp('su_union_no_workers')+'</div>');
+    h+=buildUnionWorkersHtml()||('<div class="card" style="padding:14px;font-size:13px;color:var(--text3)">'+tp(presSubKey('su_union_no_workers','su_district_no_workers'))+'</div>');
   } else {
     h+=_suOrg?buildSubUnitOverviewHtml():buildWorkersOverviewHtml();
   }
@@ -11564,7 +11602,7 @@ function renderWorkersList(){
   // vacation) and Gabriel confirmed (asked directly) that grouping by
   // country is what he wants there, always - not just past the >10
   // clutter threshold that gates the search/sort UI for real workers.
-  var isSubUnitOrg=(orgSettings.orgLevel==='division'||orgSettings.orgLevel==='gc'||orgSettings.orgLevel==='union')&&workerNames.some(function(wn){return workers[wn]&&workers[wn].isSubUnit;});
+  var isSubUnitOrg=(orgSettings.orgLevel==='division'||orgSettings.orgLevel==='gc'||presHostsSubUnits())&&workerNames.some(function(wn){return workers[wn]&&workers[wn].isSubUnit;});
   var wsDefaultSort=isSubUnitOrg?'land':'status';
   var wsQuery='', wsSortMode=wsDefaultSort;
   if(wsCluttered){
@@ -11638,7 +11676,7 @@ function renderWorkersList(){
       if(wsEffectiveMode==='land'){
         // Union: every Field is its own entry in a "Fields" block; the
         // union's own workers are kept apart in their own block below it.
-        if(orgSettings.orgLevel==='union') return w.isSubUnit?tp('su_fields_group'):'￿'+tp('su_own_workers');
+        if(presHostsSubUnits()) return w.isSubUnit?tp(presSubKey('su_fields_group','su_districts_group')):'￿'+tp('su_own_workers');
         return (w.country&&w.country.trim())||('￿'+tp('workers_no_country'));
       }
       // rol: predikant (churchRoles/churchRole) takes priority as its own
@@ -11705,7 +11743,7 @@ function renderWorkersList(){
       // header above (see wsEffectiveMode==='land' grouping), so it isn't
       // repeated here.
       if(w.isSubUnit){
-        h+='<div style="font-size:11px;color:var(--brand);font-weight:600;margin-top:1px">'+tp(w.orgLevel==='union'?'orglevel_union':w.orgLevel==='division'?'orglevel_division':'orglevel_field')+'</div>';
+        h+='<div style="font-size:11px;color:var(--brand);font-weight:600;margin-top:1px">'+tp(w.orgLevel==='district'?'orglevel_district':w.orgLevel==='union'?'orglevel_union':w.orgLevel==='division'?'orglevel_division':'orglevel_field')+'</div>';
       }
       h+='<div style="font-size:11px;color:var(--text3);margin-top:2px">'+(w.isSubUnit?suRowStatsLine(w,subUnitStatCount):(nEntries+' '+tp('workers_row_activities')+' &middot; '+nCursisten+' '+tp('workers_row_contacts')))+' &middot; '+tp('workers_row_imported')+': '+importDate+'</div>';
       h+='</div>';
@@ -12023,7 +12061,7 @@ function subUnitActivity(w){
 }
 function suUnits(){
   return Object.keys(workers).filter(function(wn){return workers[wn]&&workers[wn].isSubUnit;}).map(function(wn){
-    var w=workers[wn]; return {wn:wn,w:w,label:(orgSettings.orgLevel==='union'?wn:(w.country||wn)),act:subUnitActivity(w)};
+    var w=workers[wn]; return {wn:wn,w:w,label:(presHostsSubUnits()?wn:(w.country||wn)),act:subUnitActivity(w)};
   });
 }
 function suTotals(units){
@@ -12059,7 +12097,7 @@ function buildSubUnitOverviewHtml(){
   var year=new Date().getFullYear();
   var h='<div class="settings-section-title settings-section-title-first">'+tp('su_ov_title')+' · '+year+'</div>';
   h+='<div class="card" style="padding:12px 14px"><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">';
-  [[units.length,(orgSettings.orgLevel==='union'?'su_tab_fields':'su_countries')],[suFmt(t.studies),'su_studies'],[suFmt(t.evang),'su_evang'],
+  [[units.length,(presHostsSubUnits()?presSubKey('su_tab_fields','su_tab_districts'):'su_countries')],[suFmt(t.studies),'su_studies'],[suFmt(t.evang),'su_evang'],
    [suFmt(Math.round(t.hours)),'su_hours'],[suFmt(t.workers),'su_workers'],[suFmt(t.members),'su_members']].forEach(function(it){
     h+='<div style="padding:8px 10px;border-radius:8px;background:var(--surface2)"><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.03em">'+tp(it[1])+'</div><div style="font-size:18px;font-weight:800;color:var(--text)">'+it[0]+'</div></div>';
   });
@@ -12083,7 +12121,7 @@ function buildSubUnitOverviewHtml(){
 
     // Activity mix per country (100% stacked)
     var mixUnits=units.filter(function(u){return u.act.has;});
-    h+='<div class="settings-section-title">'+tp(orgSettings.orgLevel==='union'?'su_mix_title_field':'su_mix_title')+'</div>';
+    h+='<div class="settings-section-title">'+tp(presHostsSubUnits()?presSubKey('su_mix_title_field','su_mix_title_district'):'su_mix_title')+'</div>';
     h+='<div class="card" style="padding:12px 14px"><div style="position:relative;height:'+(70+mixUnits.length*30)+'px"><canvas id="su-ov-mix"></canvas></div></div>';
 
   }
@@ -12098,7 +12136,7 @@ function buildSubUnitOverviewHtml(){
   h+='<div class="card" style="padding:12px 14px"><select id="su-rank-sel" class="input" style="margin-bottom:10px" onchange="_suRankMetric=this.value;drawSuRank()">';
   metricList.forEach(function(m){ h+='<option value="'+m.key+'"'+(m.key===_suRankMetric?' selected':'')+'>'+tp(m.lbl)+'</option>'; });
   h+='</select>';
-  if(hasMonthly) h+='<div style="margin-bottom:10px">'+cmpSegHtml([['units',orgSettings.orgLevel==='union'?tp('su_tab_fields'):tp('su_tab_units'),"_suRankMode='units';renderWorkersList()"],['months',tp('maanden_lbl'),"_suRankMode='months';renderWorkersList()"]],rmode)+'</div>';
+  if(hasMonthly) h+='<div style="margin-bottom:10px">'+cmpSegHtml([['units',presHostsSubUnits()?tp(presSubKey('su_tab_fields','su_tab_districts')):tp('su_tab_units'),"_suRankMode='units';renderWorkersList()"],['months',tp('maanden_lbl'),"_suRankMode='months';renderWorkersList()"]],rmode)+'</div>';
   h+='<div style="position:relative;height:'+(rmode==='months'?(70+(new Date().getMonth()+1)*30):(60+units.length*30))+'px"><canvas id="su-ov-rank"></canvas></div></div>';
   return h;
 }
@@ -12106,7 +12144,7 @@ function buildSubUnitOverviewHtml(){
 // (tracker of every worker, their Field, churches under it).
 var _suUnionTab='fields';
 function suUnionTabsHtml(){
-  return '<div style="display:flex;gap:6px;margin-bottom:12px">'+[['fields',orgSettings.orgLevel==='union'?'su_tab_fields':'su_tab_units'],['workers','su_tab_workers']].map(function(p){
+  return '<div style="display:flex;gap:6px;margin-bottom:12px">'+[['fields',presHostsSubUnits()?presSubKey('su_tab_fields','su_tab_districts'):'su_tab_units'],['workers','su_tab_workers']].map(function(p){
     var on=_suUnionTab===p[0];
     return '<button type="button" onclick="_suUnionTab=\''+p[0]+'\';renderWorkersList()" style="flex:1;padding:9px 12px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;border:1.5px solid '+(on?'var(--brand)':'var(--border)')+';background:'+(on?'var(--brand-light)':'var(--surface)')+';color:'+(on?'var(--brand)':'var(--text3)')+'">'+tp(p[1])+'</button>';
   }).join('')+'</div>';
@@ -12226,22 +12264,22 @@ function buildUnionWorkersHtml(){
     if(key==='hours') return (b.hours||0)-(a.hours||0);
     return a.field.localeCompare(b.field)||(a.name||'').localeCompare(b.name||'');
   });
-  var h='<div class="settings-section-title">'+tp('su_all_workers')+' ('+rows.length+')</div><div class="card" style="padding:12px 14px">';
-  h+='<div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap"><select class="input" style="flex:1;min-width:130px" onchange="_suWFilter=this.value;renderWorkersList()"><option value="">'+tp('su_all_fields')+'</option>';
+  var h='<div class="settings-section-title">'+tp(presSubKey('su_all_workers','su_all_workers_districts'))+' ('+rows.length+')</div><div class="card" style="padding:12px 14px">';
+  h+='<div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap"><select class="input" style="flex:1;min-width:130px" onchange="_suWFilter=this.value;renderWorkersList()"><option value="">'+tp(presSubKey('su_all_fields','su_all_districts'))+'</option>';
   fields.forEach(function(f){h+='<option value="'+escapeHtml(f).replace(/"/g,'&quot;')+'"'+(f===_suWFilter?' selected':'')+'>'+escapeHtml(f)+'</option>';});
   h+='</select><select class="input" style="flex:1;min-width:130px" onchange="_suWSort=this.value;renderWorkersList()">';
   [['field','su_sort_field'],['name','su_sort_name'],['studies','su_studies'],['evang','su_evang'],['hours','su_hours']].forEach(function(o){h+='<option value="'+o[0]+'"'+(o[0]===_suWSort?' selected':'')+'>'+tp(o[1])+'</option>';});
   h+='</select></div>';
   rows.forEach(function(r){
     h+='<div style="padding:8px 0;border-top:1px solid var(--border)"><div style="display:flex;justify-content:space-between;gap:8px"><div style="font-size:13px;font-weight:600;color:var(--text)">'+(r.name?escapeHtml(r.name):tp('su_worker_anon')+' '+r.idx)+(r.isPastor?' · '+tp('worker_role_predikant'):'')+(r.multimedia?' · '+tp('subunit_multimedia'):'')+'</div><div style="font-size:11px;color:var(--brand);font-weight:600;text-align:right">'+escapeHtml(r.field)+(r.parent&&r.parent!==r.field?' · '+escapeHtml(r.parent):'')+'</div></div>';
-    h+='<div style="font-size:11px;color:var(--text3)">'+tp('subunit_bible_studies')+': '+r.studies+' · '+tp('subunit_evangelism')+': '+r.evang+(r.hours!==undefined?' · '+suFmt(r.hours)+' u':'')+(r.churches!==undefined?' · '+tp('gc_export_cat_churches')+' '+r.churches+' ('+tp('su_in_field')+')':'')+'</div></div>';
+    h+='<div style="font-size:11px;color:var(--text3)">'+tp('subunit_bible_studies')+': '+r.studies+' · '+tp('subunit_evangelism')+': '+r.evang+(r.hours!==undefined?' · '+suFmt(r.hours)+' u':'')+(r.churches!==undefined?' · '+tp('gc_export_cat_churches')+' '+r.churches+' ('+tp(presSubKey('su_in_field','su_in_district'))+')':'')+'</div></div>';
   });
   h+='</div>';
   return h;
 }
 function buildSubUnitChildrenHtml(w){
   var kids=Array.isArray(w.children)?w.children:[]; if(!kids.length) return '';
-  var h='<div class="settings-section-title" style="margin-top:16px;margin-bottom:6px">'+tp('su_fields_under')+' ('+kids.length+')</div>';
+  var h='<div class="settings-section-title" style="margin-top:16px;margin-bottom:6px">'+tp(presSubKey('su_fields_under','su_districts_under'))+' ('+kids.length+')</div>';
   kids.slice().sort(function(a,b){return (a.country||'').localeCompare(b.country||'')||(a.unitName||'').localeCompare(b.unitName||'');}).forEach(function(k,i){
     var a=subUnitActivity({aggregate:{counts:k.counts||{},activity:k.activity||null,perWorkerNumeric:k.perWorkerNumeric||[]}});
     var pw=k.perWorkerNumeric||[]; var id='suk-'+i;
@@ -12309,7 +12347,7 @@ function renderSubUnitPanelInto(wn, w, targetEl){
   var hasSiblings=Object.keys(workers).some(function(wn2){return wn2!==wn&&workers[wn2]&&workers[wn2].isSubUnit;});
   var h='<div style="padding:14px 2px">';
   h+='<div style="font-size:17px;font-weight:700;color:var(--text);margin-bottom:2px">'+escapeHtml(wn)+'</div>';
-  h+='<div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:14px">'+tp(w.orgLevel==='union'?'orglevel_union':w.orgLevel==='division'?'orglevel_division':'orglevel_field')+(w.country?' · '+escapeHtml(w.country):'')+'</div>';
+  h+='<div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:14px">'+tp(w.orgLevel==='district'?'orglevel_district':w.orgLevel==='union'?'orglevel_union':w.orgLevel==='division'?'orglevel_division':'orglevel_field')+(w.country?' · '+escapeHtml(w.country):'')+'</div>';
 
   var funnelCats=GC_EXPORT_CATS.filter(function(cat){return FUNNEL_GC_CATS.indexOf(cat.key)>=0 && counts[cat.key]!==undefined;});
   var infraCats=GC_EXPORT_CATS.filter(function(cat){return FUNNEL_GC_CATS.indexOf(cat.key)<0 && counts[cat.key]!==undefined;});
@@ -12354,7 +12392,7 @@ function renderSubUnitPanelInto(wn, w, targetEl){
     // #1288: closed-by-default accordion - this is per-person detail, not
     // the country-level picture, so it no longer opens automatically.
     h+='<div class="acc-header" style="margin-top:16px;padding:8px 0" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display===\'none\'?\'\':\'none\';this.querySelector(\'.acc-chevron\').style.transform=this.querySelector(\'.acc-chevron\').style.transform===\'rotate(180deg)\'?\'\':\'rotate(180deg)\'">';
-    h+='<span class="acc-title">'+tp(w.orgLevel==='field'?'su_workers_in_field':'gc_export_cat_workers')+' ('+perWorker.length+')</span><span class="acc-chevron">⌄</span></div>';
+    h+='<span class="acc-title">'+tp(w.orgLevel==='district'?'su_workers_in_district':w.orgLevel==='field'?'su_workers_in_field':'gc_export_cat_workers')+' ('+perWorker.length+')</span><span class="acc-chevron">⌄</span></div>';
     h+='<div style="display:none;flex-direction:column;gap:6px">';
     perWorker.forEach(function(pw){
       h+='<div style="padding:9px 10px;border-radius:8px;background:var(--surface2)">';
@@ -15288,6 +15326,7 @@ function gcExportGenerate(){
 // offered when the destination is (or passes through) the GC.
 function presOrgReportsTo(){
   var lvl=(orgSettings&&orgSettings.orgLevel)||'field';
+  if(lvl==='district') return 'field';
   if(lvl==='field') return (orgSettings&&orgSettings.underGC)?'division_gc':'union';
   if(lvl==='union') return 'gc';
   if(lvl==='division') return 'gc';
@@ -15296,6 +15335,7 @@ function presOrgReportsTo(){
 
 function aggExportDestLabel(){
   var dest=presOrgReportsTo();
+  if(dest==='field') return tp('orglevel_field');
   if(dest==='union') return tp('orglevel_union');
   if(dest==='division_gc') return tp('orglevel_division')+' + '+tp('orglevel_gc');
   if(dest==='gc') return tp('orglevel_gc');
@@ -15317,7 +15357,7 @@ function presUpdateAggExportBtn(){
 }
 
 function buildAggregateExportPayload(selectedKeys, includeNames){
-  var isSubUnitSource=((orgSettings&&orgSettings.orgLevel)||'field')!=='field';
+  var isSubUnitSource=((orgSettings&&orgSettings.orgLevel)||'field')!=='field'&&((orgSettings&&orgSettings.orgLevel)||'field')!=='district';
   var payload={
     _type:'ZDA_leaders_aggregate_export',
     _version:1,
@@ -18703,7 +18743,7 @@ var PRES_STRINGS = {
     set_org: 'Organisatie & Kaart',
     set_country: 'Land / regio',
     set_org_name: 'Naam organisatie', set_leader_name: 'Uw naam (voor de begroeting)',
-    set_org_level: 'Niveau in de organisatie', orglevel_field: 'Veld', orglevel_union: 'Unie', orglevel_division: 'Divisie', orglevel_gc: 'Generale Conferentie',
+    set_org_level: 'Niveau in de organisatie', orglevel_field: 'Veld', orglevel_district: 'District', orglevel_union: 'Unie', orglevel_division: 'Divisie', orglevel_gc: 'Generale Conferentie',
     set_under_gc: 'Rechtstreeks onder de Generale Conferentie', set_under_gc_hint: 'Rapporteert rechtstreeks aan Divisie + AC in plaats van via de Unie',
     agg_export_btn_prefix: 'Exporteer data naar', agg_dest_division_gc: 'Divisie + AC',
     agg_export_title: 'Data exporteren naar', agg_export_sub: 'Deze export bevat alleen cijfers - geen namen, tenzij hieronder aangevinkt. Kies wat u wilt meesturen.',
@@ -18870,7 +18910,7 @@ var PRES_STRINGS = {
     set_language: 'Language', set_display: 'Display', set_theme: 'Color theme',
     set_font: 'Font size', set_font_sm: 'A small', set_font_md: 'A normal', set_font_lg: 'A large',
     set_org: 'Organisation & Map', set_country: 'Country / region', set_org_name: 'Organisation name', set_leader_name: 'Your name (for the greeting)',
-    set_org_level: 'Level in the organisation', orglevel_field: 'Field', orglevel_union: 'Union', orglevel_division: 'Division', orglevel_gc: 'General Conference',
+    set_org_level: 'Level in the organisation', orglevel_field: 'Field', orglevel_district: 'District', orglevel_union: 'Union', orglevel_division: 'Division', orglevel_gc: 'General Conference',
     set_under_gc: 'Directly under the General Conference', set_under_gc_hint: 'Reports directly to Division + GC instead of via the Union',
     set_km_rate: 'Km reimbursement (€ per km)', set_manage: 'Manage', updates_title: "What's new?", updates_empty: 'No updates yet.',
     set_delete_all: 'Delete all worker data', set_about: 'About this app',
@@ -19165,7 +19205,7 @@ var PRES_STRINGS = {
     set_language: 'Idioma', set_display: 'Pantalla', set_theme: 'Tema de color',
     set_font: 'Tamaño de letra', set_font_sm: 'A pequeño', set_font_md: 'A normal', set_font_lg: 'A grande',
     set_org: 'Organización & Mapa', set_country: 'País / región', set_org_name: 'Nombre organización', set_leader_name: 'Su nombre (para el saludo)',
-    set_org_level: 'Nivel en la organización', orglevel_field: 'Campo', orglevel_union: 'Unión', orglevel_division: 'División', orglevel_gc: 'Conferencia General',
+    set_org_level: 'Nivel en la organización', orglevel_field: 'Campo', orglevel_district: 'Distrito', orglevel_union: 'Unión', orglevel_division: 'División', orglevel_gc: 'Conferencia General',
     set_under_gc: 'Directamente bajo la Conferencia General', set_under_gc_hint: 'Reporta directamente a la División + CG en lugar de a través de la Unión',
     agg_export_btn_prefix: 'Exportar datos a', agg_dest_division_gc: 'División + CG',
     agg_export_title: 'Exportar datos a', agg_export_sub: 'Esta exportación solo incluye cifras - sin nombres, a menos que se marque abajo. Elija qué desea enviar.',
@@ -19297,7 +19337,7 @@ var PRES_STRINGS = {
     set_language: 'Langue', set_display: 'Affichage', set_theme: 'Thème de couleur', set_font: 'Taille du texte',
     set_font_sm: 'A petit', set_font_md: 'A normal', set_font_lg: 'A grand',
     set_org: 'Organisation & Carte', set_country: 'Pays / région', set_org_name: "Nom de l'organisation", set_leader_name: 'Votre nom (pour le message de bienvenue)',
-    set_org_level: "Niveau dans l'organisation", orglevel_field: 'Champ', orglevel_union: 'Union', orglevel_division: 'Division', orglevel_gc: 'Conférence Générale',
+    set_org_level: "Niveau dans l'organisation", orglevel_field: 'Champ', orglevel_district: 'District', orglevel_union: 'Union', orglevel_division: 'Division', orglevel_gc: 'Conférence Générale',
     set_under_gc: 'Directement sous la Conférence Générale', set_under_gc_hint: "Rapporte directement à la Division + CG plutôt que via l'Union",
     set_km_rate: 'Indemnité km (€ par km)', set_manage: 'Gestion', set_delete_all: 'Supprimer toutes les données des ouvriers', updates_title: 'Quoi de neuf ?', updates_empty: 'Pas encore de mises à jour.',
     set_about: 'À propos de cette app', set_president: 'Leaders Companion App', set_dev_by: 'Développé par', set_tech_by: 'Technologie',
@@ -19401,7 +19441,7 @@ var PRES_STRINGS = {
     set_language: 'Sprache', set_display: 'Anzeige', set_theme: 'Farbthema', set_font: 'Schriftgröße',
     set_font_sm: 'A klein', set_font_md: 'A normal', set_font_lg: 'A groß',
     set_org: 'Organisation & Karte', set_country: 'Land / Region', set_org_name: 'Name der Organisation', set_leader_name: 'Ihr Name (für die Begrüßung)',
-    set_org_level: 'Ebene in der Organisation', orglevel_field: 'Feld', orglevel_union: 'Vereinigung', orglevel_division: 'Division', orglevel_gc: 'Generalkonferenz',
+    set_org_level: 'Ebene in der Organisation', orglevel_field: 'Feld', orglevel_district: 'Distrikt', orglevel_union: 'Vereinigung', orglevel_division: 'Division', orglevel_gc: 'Generalkonferenz',
     set_under_gc: 'Direkt unter der Generalkonferenz', set_under_gc_hint: 'Berichtet direkt an Division + GK statt über die Vereinigung',
     set_km_rate: 'Km-Vergütung (€ pro km)', set_manage: 'Verwaltung', set_delete_all: 'Alle Mitarbeiterdaten löschen', updates_title: 'Was ist neu?', updates_empty: 'Noch keine Updates.',
     set_about: 'Über diese App', set_president: 'Leaders Companion App', set_dev_by: 'Entwickelt von', set_tech_by: 'Technologie',
@@ -19505,7 +19545,7 @@ var PRES_STRINGS = {
     set_language: 'Limbă', set_display: 'Afișare', set_theme: 'Temă de culoare', set_font: 'Dimensiune text',
     set_font_sm: 'A mic', set_font_md: 'A normal', set_font_lg: 'A mare',
     set_org: 'Organizație & Hartă', set_country: 'Țară / regiune', set_org_name: 'Numele organizației', set_leader_name: 'Numele dvs. (pentru salut)',
-    set_org_level: 'Nivel în organizație', orglevel_field: 'Câmp', orglevel_union: 'Uniune', orglevel_division: 'Diviziune', orglevel_gc: 'Conferința Generală',
+    set_org_level: 'Nivel în organizație', orglevel_field: 'Câmp', orglevel_district: 'District', orglevel_union: 'Uniune', orglevel_division: 'Diviziune', orglevel_gc: 'Conferința Generală',
     set_under_gc: 'Direct sub Conferința Generală', set_under_gc_hint: 'Raportează direct la Diviziune + CG în loc de prin Uniune',
     set_km_rate: 'Rambursare km (€ pe km)', set_manage: 'Gestionare', set_delete_all: 'Șterge toate datele lucrătorilor', updates_title: 'Ce este nou?', updates_empty: 'Încă nu există actualizări.',
     set_about: 'Despre această aplicație', set_president: 'Leaders Companion App', set_dev_by: 'Dezvoltat de', set_tech_by: 'Tehnologie',
@@ -19609,7 +19649,7 @@ var PRES_STRINGS = {
     set_language: 'Lingua', set_display: 'Visualizzazione', set_theme: 'Tema colore', set_font: 'Dimensione testo',
     set_font_sm: 'A piccolo', set_font_md: 'A normale', set_font_lg: 'A grande',
     set_org: 'Organizzazione & Mappa', set_country: 'Paese / regione', set_org_name: 'Nome organizzazione', set_leader_name: 'Il tuo nome (per il saluto)',
-    set_org_level: "Livello nell'organizzazione", orglevel_field: 'Campo', orglevel_union: 'Unione', orglevel_division: 'Divisione', orglevel_gc: 'Conferenza Generale',
+    set_org_level: "Livello nell'organizzazione", orglevel_field: 'Campo', orglevel_district: 'Distretto', orglevel_union: 'Unione', orglevel_division: 'Divisione', orglevel_gc: 'Conferenza Generale',
     set_under_gc: 'Direttamente sotto la Conferenza Generale', set_under_gc_hint: "Riporta direttamente a Divisione + CG invece che tramite l'Unione",
     set_km_rate: 'Rimborso km (€ per km)', set_manage: 'Gestione', set_delete_all: 'Elimina tutti i dati degli operai', updates_title: 'Novità', updates_empty: 'Ancora nessun aggiornamento.',
     set_about: "Informazioni sull'app", set_president: 'Leaders Companion App', set_dev_by: 'Sviluppato da', set_tech_by: 'Tecnologia',
@@ -19713,7 +19753,7 @@ var PRES_STRINGS = {
     set_language: 'Idioma', set_display: 'Exibição', set_theme: 'Tema de cor', set_font: 'Tamanho do texto',
     set_font_sm: 'A pequeno', set_font_md: 'A normal', set_font_lg: 'A grande',
     set_org: 'Organização & Mapa', set_country: 'País / região', set_org_name: 'Nome da organização', set_leader_name: 'O seu nome (para a saudação)',
-    set_org_level: 'Nível na organização', orglevel_field: 'Campo', orglevel_union: 'União', orglevel_division: 'Divisão', orglevel_gc: 'Conferência Geral',
+    set_org_level: 'Nível na organização', orglevel_field: 'Campo', orglevel_district: 'Distrito', orglevel_union: 'União', orglevel_division: 'Divisão', orglevel_gc: 'Conferência Geral',
     set_under_gc: 'Diretamente sob a Conferência Geral', set_under_gc_hint: 'Reporta diretamente à Divisão + CG em vez de através da União',
     set_km_rate: 'Reembolso km (€ por km)', set_manage: 'Gerenciamento', set_delete_all: 'Excluir todos os dados dos obreiros', updates_title: 'O que há de novo?', updates_empty: 'Ainda não há atualizações.',
     set_about: 'Sobre este app', set_president: 'Leaders Companion App', set_dev_by: 'Desenvolvido por', set_tech_by: 'Tecnologia',
@@ -19752,6 +19792,16 @@ var PRES_STRINGS = {
     su_own_workers:{nl:'Eigen werkers',en:'Own workers',es:'Obreros propios'},
     nav_fields:{nl:'Velden',en:'Fields',es:'Campos',fr:'Champs',de:'Felder',ro:'Câmpuri',it:'Campi',pt:'Campos'},
     su_tab_fields:{nl:'Velden',en:'Fields',es:'Campos'},
+    su_tab_districts:{nl:'Districten',en:'Districts',es:'Distritos',fr:'Districts',de:'Distrikte',ro:'Districte',it:'Distretti',pt:'Distritos'},
+    su_districts_group:{nl:'Districten',en:'Districts',es:'Distritos',fr:'Districts',de:'Distrikte',ro:'Districte',it:'Distretti',pt:'Distritos'},
+    nav_districts:{nl:'Districten',en:'Districts',es:'Distritos',fr:'Districts',de:'Distrikte',ro:'Districte',it:'Distretti',pt:'Distritos'},
+    su_mix_title_district:{nl:'Activiteitenmix per District (%)',en:'Activity mix by District (%)',es:'Mezcla de actividades por Distrito (%)',fr:'Répartition des activités par District (%)',de:'Aktivitätsmix pro Distrikt (%)',ro:'Mixul de activități pe District (%)',it:'Mix di attività per Distretto (%)',pt:'Mistura de atividades por Distrito (%)'},
+    su_workers_in_district:{nl:'Werkers in dit District',en:'Workers in this District',es:'Obreros en este Distrito',fr:'Ouvriers dans ce District',de:'Mitarbeiter in diesem Distrikt',ro:'Lucrători în acest District',it:'Operatori in questo Distretto',pt:'Obreiros neste Distrito'},
+    su_all_workers_districts:{nl:'Alle werkers in de Districten',en:'All workers in the Districts',es:'Todos los obreros en los Distritos',fr:'Tous les ouvriers des Districts',de:'Alle Mitarbeiter in den Distrikten',ro:'Toți lucrătorii din Districte',it:'Tutti gli operatori nei Distretti',pt:'Todos os obreiros nos Distritos'},
+    su_all_districts:{nl:'Alle Districten',en:'All Districts',es:'Todos los Distritos',fr:'Tous les Districts',de:'Alle Distrikte',ro:'Toate Districtele',it:'Tutti i Distretti',pt:'Todos os Distritos'},
+    su_districts_under:{nl:'Districten onder dit Veld',en:'Districts under this Field',es:'Distritos bajo este Campo',fr:'Districts de ce Champ',de:'Distrikte unter diesem Feld',ro:'Districte sub acest Câmp',it:'Distretti sotto questo Campo',pt:'Distritos sob este Campo'},
+    su_in_district:{nl:'in dit District',en:'in this District',es:'en este Distrito',fr:'dans ce District',de:'in diesem Distrikt',ro:'în acest District',it:'in questo Distretto',pt:'neste Distrito'},
+    su_district_no_workers:{nl:'Nog geen werkers gerapporteerd door de Districten.',en:'No workers reported by the Districts yet.',es:'Aún no hay obreros reportados por los Distritos.',fr:'Aucun ouvrier signalé par les Districts pour le moment.',de:'Noch keine Mitarbeiter von den Distrikten gemeldet.',ro:'Încă nu există lucrători raportați de Districte.',it:'Nessun operatore ancora segnalato dai Distretti.',pt:'Ainda não há obreiros reportados pelos Distritos.'},
     greeting_morning:{nl:'Goedemorgen',en:'Good morning',es:'Buenos días',fr:'Bonjour',de:'Guten Morgen',ro:'Bună dimineața',it:'Buongiorno',pt:'Bom dia'},
     greeting_afternoon:{nl:'Goedemiddag',en:'Good afternoon',es:'Buenas tardes',fr:'Bon après-midi',de:'Guten Tag',ro:'Bună ziua',it:'Buon pomeriggio',pt:'Boa tarde'},
     greeting_evening:{nl:'Goedenavond',en:'Good evening',es:'Buenas noches',fr:'Bonsoir',de:'Guten Abend',ro:'Bună seara',it:'Buonasera',pt:'Boa noite'},
@@ -19813,9 +19863,9 @@ function applyPresTranslations(){
   // file has actually been imported yet (the org-level setting alone is
   // what determines what this instance is FOR, not what happens to be
   // sitting in workers[] right now).
-  var subUnitLevel=(orgSettings.orgLevel==='division'||orgSettings.orgLevel==='gc'||orgSettings.orgLevel==='union');
+  var subUnitLevel=(orgSettings.orgLevel==='division'||orgSettings.orgLevel==='gc'||presHostsSubUnits());
   var navMap={
-    'nb-dashboard':'nav_overzicht', 'nb-workers':(orgSettings.orgLevel==='union'?'nav_fields':(orgSettings.orgLevel==='division'||orgSettings.orgLevel==='gc')?'nav_subunits':'nav_workers'),
+    'nb-dashboard':'nav_overzicht', 'nb-workers':(presHostsSubUnits()?presSubKey('nav_fields','nav_districts'):(orgSettings.orgLevel==='division'||orgSettings.orgLevel==='gc')?'nav_subunits':'nav_workers'),
     'nb-database':'nav_database', 'nb-bijbelstudies':'nav_bijbelstudies',
     'nb-rooster':'nav_rooster'
   };
