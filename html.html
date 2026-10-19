@@ -1044,6 +1044,8 @@ textarea{resize:vertical;min-height:68px;line-height:1.5}
     <div style="font-size:15px;font-weight:500;color:#fff;letter-spacing:.3px;text-shadow:0 1px 3px rgba(0,0,0,.2)">Leaders</div>
     <div style="font-size:11px;font-weight:400;color:rgba(255,255,255,.85);margin-top:2px;text-shadow:0 1px 3px rgba(0,0,0,.2)">Companion App</div>
   </div>
+  <style>@keyframes bootspin{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){#boot-spinner{animation-duration:2.4s!important}}</style>
+  <div id="boot-spinner" role="progressbar" aria-label="Loading" style="width:26px;height:26px;margin-top:22px;border:2.5px solid rgba(255,255,255,.22);border-top-color:#fff;border-radius:50%;animation:bootspin .8s linear infinite"></div>
 </div>
 <script>
 function hideBootSplash(){
