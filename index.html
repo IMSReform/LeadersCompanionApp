@@ -21655,15 +21655,10 @@ function _rooResetUi(){ roosterUndoStack=[]; roosterRedoStack=[]; _spExpanded={}
 function roosterNewList(){
   var name=prompt(tp('rooster_list_new_prompt'),tp('rooster_list_default')+' '+((roosterData.otherLists||[]).length+2));
   if(!name||!name.trim()) return;
-  var keep=confirm(tp('rooster_list_keep_confirm'));
   var st=_rooStash(); var others=st.others.concat([st.entry]);
   var fresh={kerken:[],sprekers:[],rooster:[],gesloten:[],periode:{start:'',end:''},weekday:6,voetnoten:[],egwQuote:'',egwAuthor:'',egwSigner:'',egwSignerRole:'',geschiedenis:{},historyEnabled:true,purpose:'prediking',purposeCustom:'',dateOrient:'h'};
-  if(keep){
-    fresh.kerken=_rooClone(roosterData.kerken||[]);
-    fresh.sprekers=_rooClone(roosterData.sprekers||[]).map(function(s){ s.beschikbaar=[]; s.onbeschikbaar=[]; s.presencialOK=s.presencialOK; return s; });
-  }
   fresh.listId='l'+Date.now()+Math.random().toString(36).slice(2,6); fresh.listName=name.trim(); fresh.otherLists=others;
-  roosterData=fresh; _rooResetUi(); _rooSetOpen=true; _rooBodyOpen=true; saveRooster(); renderRooster();
+  roosterData=fresh; _rooResetUi(); _rooSetOpen=true; _rooBodyOpen=true; _rooYear=false; _roosterTab='rooster'; saveRooster(); renderRooster();
 }
 function roosterSwitchList(id){
   if(!id||id===roosterData.listId) return;
