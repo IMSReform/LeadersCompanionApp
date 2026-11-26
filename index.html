@@ -21526,6 +21526,22 @@ function roosterTogglePresencial(sab){
   saveRooster(); renderRooster();
 }
 function _rooPres(sab){ return (roosterData.presencial||[]).indexOf(sab)>=0; }
+// Keep scroll positions (page, scroll containers, and the grid box) across
+// every Rooster re-render, so ticking a date/name doesn't jump back to the top.
+(function(){
+  var _orig=renderRooster;
+  renderRooster=function(){
+    var saved=[], el=document.getElementById('rooster-grid-scroll'), gridPos=el?{t:el.scrollTop,l:el.scrollLeft}:null;
+    for(var p=el?el.parentElement:null;p;p=p.parentElement){ if(p.scrollTop||p.scrollLeft) saved.push([p,p.scrollTop,p.scrollLeft]); }
+    var wy=window.pageYOffset, wx=window.pageXOffset;
+    var r=_orig.apply(this,arguments);
+    saved.forEach(function(x){ x[0].scrollTop=x[1]; x[0].scrollLeft=x[2]; });
+    var el2=document.getElementById('rooster-grid-scroll');
+    if(el2&&gridPos){ el2.scrollTop=gridPos.t; el2.scrollLeft=gridPos.l; }
+    if(wy||wx) window.scrollTo(wx,wy);
+    return r;
+  };
+})();
 var _rooYear=false;
 function roosterSetYear(on){ _rooYear=!!on; renderRooster(); }
 function renderRoosterYear(sabbaths){
