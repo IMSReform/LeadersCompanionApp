@@ -21797,7 +21797,7 @@ function renderRoosterMain(){
   // ── SPEAKER POOL ──
   h+='<div class="card" style="padding:8px 12px;margin-bottom:8px;position:sticky;top:0;z-index:20;background:var(--surface)">';
   h+='<div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.05em;margin-bottom:4px">'+tp('rooster_speaker_pool_lbl')+'</div>';
-  h+='<div id="speaker-pool" style="display:flex;flex-wrap:wrap;gap:5px;min-height:28px;max-height:92px;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:4px;border-radius:8px;border:1.5px dashed var(--border)" ondragover="event.preventDefault()" ondrop="poolDrop(event)">';
+  h+='<div id="speaker-pool" style="display:flex;flex-wrap:wrap;gap:5px;min-height:28px;max-height:70px;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:4px;border-radius:8px;border:1.5px dashed var(--border)" ondragover="event.preventDefault()" ondrop="poolDrop(event)">';
   sprekers.forEach(function(s){
     var sActief=s.actief!==false;
     h+='<div draggable="true" data-speakerid="'+s.id+'" ondragstart="dragSpeaker(event)" ';
@@ -21852,7 +21852,7 @@ function renderRoosterMain(){
       h+='ondragover="event.preventDefault();this.style.outline=\'2px solid var(--brand)\'" ';
       h+='ondragleave="this.style.outline=\'\'" ';
       h+='ondrop="dropOnSlot(event,\''+slotId+'\');this.style.outline=\'\'" ';
-      h+='style="'+(roosterData.online&&_rooPres(sab)?'background:rgba(131,163,113,.22);':'')+'padding:4px;border-left:1px solid var(--border);min-height:44px;display:flex;flex-direction:column;align-items:stretch;justify-content:center">';
+      h+='style="'+(roosterData.online&&_rooPres(sab)?'background:rgba(131,163,113,.22);':'')+'padding:4px;border-left:1px solid var(--border);min-height:34px;display:flex;flex-direction:column;align-items:stretch;justify-content:center">';
 
       if(sp||(entry&&entry.customLabel)){
         var isDouble2=sp?(spCountsBySab[sab][sp.id]||0)>1:false;
@@ -21889,7 +21889,7 @@ function renderRoosterMain(){
 
   var _gridStart=h.length;
   h+='<div class="card" style="padding:0;overflow:hidden">';
-  h+='<div id="rooster-grid-scroll" style="overflow:auto;-webkit-overflow-scrolling:touch;max-height:calc(100dvh - 240px);min-height:280px">';
+  h+='<div id="rooster-grid-scroll" style="overflow:auto;-webkit-overflow-scrolling:touch;max-height:calc(100dvh - 330px);min-height:220px">';
 
   if(!vert){
     // Dates as columns (churches as rows) - same axis order as the PDF.
@@ -21921,7 +21921,7 @@ function renderRoosterMain(){
     sabbaths.forEach(function(sab,si){
       var rowBg=si%2===0?'var(--surface)':'var(--surface2)';
       h+='<div style="display:grid;grid-template-columns:'+vCols+';min-width:'+vMinWidth+';background:'+rowBg+';border-top:1px solid var(--border)">';
-      h+='<div style="'+(roosterData.online&&_rooPres(sab)?'background:rgba(131,163,113,.22);':'')+'padding:8px 10px;font-size:12px;font-weight:700;color:var(--text2);white-space:nowrap;display:flex;flex-direction:column;justify-content:center">'+dateLabel(sab)+(roosterData.online?'<label style="display:flex;align-items:center;gap:3px;margin-top:3px;font-size:9px;font-weight:600;color:var(--text3);cursor:pointer"><input type="checkbox" '+(_rooPres(sab)?'checked ':'')+'onchange="roosterTogglePresencial(\''+sab+'\')" style="width:12px;height:12px;margin:0">'+tp('rooster_onsite_lbl')+'</label>':'')+'</div>';
+      h+='<div style="'+(roosterData.online&&_rooPres(sab)?'background:rgba(131,163,113,.22);':'')+'padding:4px 10px;font-size:12px;font-weight:700;color:var(--text2);white-space:nowrap;display:flex;flex-direction:column;justify-content:center;line-height:1.2">'+dateLabel(sab)+(roosterData.online?'<label style="display:flex;align-items:center;gap:3px;margin-top:1px;font-size:9px;font-weight:600;color:var(--text3);cursor:pointer"><input type="checkbox" '+(_rooPres(sab)?'checked ':'')+'onchange="roosterTogglePresencial(\''+sab+'\')" style="width:12px;height:12px;margin:0">'+tp('rooster_onsite_lbl')+'</label>':'')+'</div>';
       rowDefs.forEach(function(rd){ h+=slotCell(sab,rd.kerk,rd.dienst); });
       h+='</div>';
     });
