@@ -21679,8 +21679,8 @@ function renderRoosterYear(sabbaths){
   while(y<yEnd||(y===yEnd&&m<=mEnd)){
     h+='<div><div style="font-size:12px;font-weight:800;color:var(--text);text-transform:capitalize;margin-bottom:4px">'+mName(y,m)+'</div>';
     h+='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px">';
-    for(var i=1;i<=7;i++) h+='<div style="font-size:9px;font-weight:700;color:var(--text3);text-align:center">'+dName(i%7===0?6:i-1).toUpperCase()+'</div>';
-    var firstDay=new Date(Date.UTC(y,m,1)); var wd=(firstDay.getUTCDay()+6)%7; // Monday=0
+    for(var i=0;i<7;i++) h+='<div style="font-size:9px;font-weight:700;color:var(--text3);text-align:center">'+dName(i===0?6:i-1).toUpperCase()+'</div>';
+    var firstDay=new Date(Date.UTC(y,m,1)); var wd=firstDay.getUTCDay(); // Sunday=0 -> weeks end on Saturday
     for(var b=0;b<wd;b++) h+='<div></div>';
     var dim=new Date(Date.UTC(y,m+1,0)).getUTCDate();
     for(var d=1;d<=dim;d++){
