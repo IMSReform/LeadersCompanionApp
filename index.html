@@ -21887,6 +21887,7 @@ function renderRoosterMain(){
   function kerkLabel(rd){return rd.kerk.naam+(rd.kerk.frequentie&&rd.kerk.frequentie>1?' ('+rd.dienst+')':'');}
   var headBg='background:linear-gradient(135deg, var(--brand-dark) 0%, var(--brand) 55%, var(--brand-mid) 100%)';
 
+  var _gridStart=h.length;
   h+='<div class="card" style="padding:0;overflow:hidden">';
   h+='<div id="rooster-grid-scroll" style="overflow:auto;-webkit-overflow-scrolling:touch;max-height:calc(100dvh - 240px);min-height:280px">';
 
@@ -21926,7 +21927,8 @@ function renderRoosterMain(){
     });
   }
   h+='</div></div>';
-  if(_rooYear) h+=renderRoosterYear(sabbaths);
+  // Year preview replaces the list/grid while the checkbox is on.
+  if(_rooYear) h=h.slice(0,_gridStart)+renderRoosterYear(sabbaths);
 
   // ── SUGGESTIES — right after the grid so a speaker shortage is visible
   // (and actionable via "Toepassen") before scrolling past the woord/
