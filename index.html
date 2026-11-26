@@ -23233,10 +23233,10 @@ function renderRoosterSubSections(){
   var h='';
   [{k:'kerken',l:roosterIsPreaching()?tp('rooster_tab_kerken'):tp('rooster_tab_locaties'),n:(roosterData.kerken||[]).length},{k:'sprekers',l:tp('rooster_tab_personen'),n:(roosterData.sprekers||[]).length}].forEach(function(t){
     var open=_rooSub===t.k;
-    h+='<div onclick="roosterToggleSub(\''+t.k+'\')" class="card" style="display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer;margin-bottom:8px">';
-    h+='<span style="flex:1;font-size:13px;font-weight:700;color:var(--text)">'+escapeHtml(t.l)+'</span><span style="font-size:12px;color:var(--text3)">'+t.n+'</span>';
-    h+='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="2" style="transform:rotate('+(open?180:0)+'deg)"><polyline points="6 9 12 15 18 9"/></svg></div>';
-    if(open) h+=(t.k==='kerken'?renderRoosterKerken():renderRoosterSprekers());
+    h+='<div onclick="roosterToggleSub(\''+t.k+'\')" class="card" style="display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer;margin-bottom:'+(open?'0':'8px')+';'+(open?'background:var(--brand);border-color:var(--brand);border-bottom-left-radius:0;border-bottom-right-radius:0':'')+'">';
+    h+='<span style="flex:1;font-size:13px;font-weight:700;color:'+(open?'#fff':'var(--text)')+'">'+escapeHtml(t.l)+'</span><span style="font-size:12px;color:'+(open?'rgba(255,255,255,.85)':'var(--text3)')+'">'+t.n+'</span>';
+    h+='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="'+(open?'#fff':'var(--text3)')+'" stroke-width="2" style="transform:rotate('+(open?180:0)+'deg)"><polyline points="6 9 12 15 18 9"/></svg></div>';
+    if(open) h+='<div style="border:2px solid var(--brand);border-top:none;border-radius:0 0 12px 12px;padding:10px 8px 2px;margin-bottom:10px;background:var(--brand-light)">'+(t.k==='kerken'?renderRoosterKerken():renderRoosterSprekers())+'</div>';
   });
   return h;
 }
