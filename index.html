@@ -18533,6 +18533,7 @@ var PRES_STRINGS = {
     remove_worker_confirm: 'Worker "{n}" verwijderen?',
     clear_all_confirm: 'Alle worker data verwijderen?',
     clear_rooster_confirm: 'Ook de werkers en de ingevulde planning in het Rooster verwijderen? (De gemeenten blijven staan.)',
+    rooster_date_col: 'Datum', rooster_orient_lbl: 'Datums', rooster_orient_h: 'Horizontaal', rooster_orient_v: 'Verticaal',
     prev: 'Vorige', next: 'Volgende',
     period_month: 'Maand', period_year: 'Jaar',
     stat_total_hours: 'Totaal uren', stat_total_km: 'Totaal km', stat_km_verg2: 'Km verg.', stat_bs_short: 'Bijbelst.',
@@ -18956,7 +18957,7 @@ var PRES_STRINGS = {
     set_org_level: 'Level in the organisation', orglevel_field: 'Field', orglevel_district: 'District', orglevel_union: 'Union', orglevel_division: 'Division', orglevel_gc: 'General Conference',
     set_under_gc: 'Directly under the General Conference', set_under_gc_hint: 'Reports directly to Division + GC instead of via the Union',
     set_km_rate: 'Km reimbursement (€ per km)', set_manage: 'Manage', updates_title: "What's new?", updates_empty: 'No updates yet.',
-    set_delete_all: 'Delete all worker data', clear_all_confirm: 'Delete all worker data?', clear_rooster_confirm: 'Also delete the workers and the filled-in schedule in the Rooster? (Churches are kept.)', set_about: 'About this app',
+    set_delete_all: 'Delete all worker data', clear_all_confirm: 'Delete all worker data?', clear_rooster_confirm: 'Also delete the workers and the filled-in schedule in the Rooster? (Churches are kept.)', rooster_date_col: 'Date', rooster_orient_lbl: 'Dates', rooster_orient_h: 'Horizontal', rooster_orient_v: 'Vertical', set_about: 'About this app',
     set_president: 'Leaders Companion App', set_dev_by: 'Developed by', set_tech_by: 'Technology',
     absent_now: 'ABSENT', save: 'Save', cancel: 'Cancel', delete: 'Delete', close: 'Close',
     add: 'Add', edit: 'Edit', back: '← Back', no_results: 'No results found.', loading: 'Loading...',
@@ -19053,6 +19054,7 @@ var PRES_STRINGS = {
     remove_worker_confirm: '¿Eliminar al obrero "{n}"?',
     clear_all_confirm: '¿Eliminar todos los datos de los obreros?',
     clear_rooster_confirm: '¿Eliminar también los obreros y la programación del Rooster? (Las iglesias se conservan.)',
+    rooster_date_col: 'Fecha', rooster_orient_lbl: 'Fechas', rooster_orient_h: 'Horizontal', rooster_orient_v: 'Vertical',
     prev: 'Anterior', next: 'Siguiente',
     period_month: 'Mes', period_year: 'Año',
     stat_total_hours: 'Total horas', stat_total_km: 'Total km', stat_km_verg2: 'Reimb. km', stat_bs_short: 'Estudiant.',
@@ -21100,6 +21102,7 @@ function renderRoosterPurposeCard(){
   h+='</div>';
   return h;
 }
+function roosterSetOrient(o){ roosterData.dateOrient=(o==='v')?'v':'h'; saveRooster(); renderRooster(); }
 function saveRooster(){ try{localStorage.setItem('_zdapres_rooster',JSON.stringify(roosterData));localStorage.setItem(DRIVE_LASTSAVED_KEY,String(Date.now()));}catch(e){} }
 
 function roosterIsGesloten(sab,kerkId){
@@ -21618,6 +21621,11 @@ function renderRoosterMain(){
   h+='<button onclick="roosterReset()" style="flex:1;padding:11px;border-radius:10px;background:var(--surface);color:#E74C3C;border:1.5px solid #E74C3C;font-size:12px;font-weight:700;cursor:pointer">'+tp('rooster_reset_btn')+'</button>';
   h+='<button onclick="roosterExport()" style="flex:1;padding:11px;border-radius:10px;background:var(--surface);color:var(--brand);border:1.5px solid var(--brand);font-size:12px;font-weight:700;cursor:pointer">'+tp('rooster_pdf_btn')+'</button>';
   h+='</div>';
+  var _vOr=(roosterData.dateOrient==='v');
+  h+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px"><span style="font-size:11px;font-weight:700;color:var(--text3);margin-right:2px">'+tp('rooster_orient_lbl')+'</span>';
+  h+='<button onclick="roosterSetOrient(\'h\')" style="flex:1;padding:8px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid '+(_vOr?'var(--border)':'var(--brand)')+';background:'+(_vOr?'var(--surface)':'var(--brand-light)')+';color:'+(_vOr?'var(--text2)':'var(--brand)')+'">\u21C4 '+tp('rooster_orient_h')+'</button>';
+  h+='<button onclick="roosterSetOrient(\'v\')" style="flex:1;padding:8px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid '+(_vOr?'var(--brand)':'var(--border)')+';background:'+(_vOr?'var(--brand-light)':'var(--surface)')+';color:'+(_vOr?'var(--brand)':'var(--text2)')+'">\u21C5 '+tp('rooster_orient_v')+'</button>';
+  h+='</div>';
   h+='<div style="display:flex;gap:6px;margin-bottom:8px">';
   h+='<button id="rooster-undo-btn" onclick="roosterUndo()" title="'+tp('rooster_undo_lbl')+'" style="flex:1;padding:8px;border-radius:10px;background:var(--surface);color:var(--text2);border:1.5px solid var(--border);font-size:14px;font-weight:700;cursor:pointer;opacity:'+(roosterUndoStack.length?'1':'.4')+'" '+(roosterUndoStack.length?'':'disabled')+'>↺ '+tp('rooster_undo_lbl')+'</button>';
   h+='<button id="rooster-redo-btn" onclick="roosterRedo()" title="'+tp('rooster_redo_lbl')+'" style="flex:1;padding:8px;border-radius:10px;background:var(--surface);color:var(--text2);border:1.5px solid var(--border);font-size:14px;font-weight:700;cursor:pointer;opacity:'+(roosterRedoStack.length?'1':'.4')+'" '+(roosterRedoStack.length?'':'disabled')+'>↻ '+tp('rooster_redo_lbl')+'</button>';
@@ -21672,11 +21680,9 @@ function renderRoosterMain(){
   // spreadsheet), but above that floor every column grows together
   // proportionally to fill the card instead of leaving blank space.
   var ROOSTER_COL_LABEL=112, ROOSTER_COL_DATE=90;
-  var gridCols=ROOSTER_COL_LABEL+'px repeat('+sabbaths.length+',minmax('+ROOSTER_COL_DATE+'px,1fr))';
-  var gridMinWidth=(ROOSTER_COL_LABEL+sabbaths.length*ROOSTER_COL_DATE)+'px';
+  var vert=(roosterData.dateOrient==='v');
 
-  // Double-booking counts per Sabbath, computed once up front (was inside
-  // the old date-row loop; now needed per date-column instead).
+  // Double-booking counts per Sabbath, computed once up front.
   var spCountsBySab={};
   sabbaths.forEach(function(sab){
     var spCounts={};
@@ -21684,27 +21690,9 @@ function renderRoosterMain(){
     spCountsBySab[sab]=spCounts;
   });
 
-  h+='<div class="card" style="padding:0;overflow:hidden">';
-  h+='<div style="overflow-x:auto;-webkit-overflow-scrolling:touch">';
-
-  // Header — blank corner cell, then one date column per Sabbath.
-  h+='<div style="display:grid;grid-template-columns:'+gridCols+';min-width:'+gridMinWidth+';background:linear-gradient(135deg, var(--brand-dark) 0%, var(--brand) 55%, var(--brand-mid) 100%)">';
-  h+='<div style="padding:8px 10px;font-size:11px;font-weight:700;color:rgba(255,255,255,.7)">'+tp('rooster_church_col')+'</div>';
-  sabbaths.forEach(function(sab){
-    var dp=sab.split('-');
-    h+='<div style="padding:8px 4px;font-size:10px;font-weight:700;color:#fff;text-align:center;border-left:1px solid rgba(255,255,255,.2)">'+parseInt(dp[2])+' '+MAANDEN[parseInt(dp[1])-1]+'</div>';
-  });
-  h+='</div>';
-
-  // Church rows (one extra row per additional dienst beyond the first)
-  rowDefs.forEach(function(rd,ri){
-    var k=rd.kerk, d=rd.dienst;
-    var rowBg=ri%2===0?'var(--surface)':'var(--surface2)';
-
-    h+='<div style="display:grid;grid-template-columns:'+gridCols+';min-width:'+gridMinWidth+';background:'+rowBg+';border-top:1px solid var(--border)">';
-    h+='<div style="padding:8px 10px;font-size:12px;font-weight:700;color:var(--text2);white-space:nowrap;display:flex;align-items:center;overflow:hidden;text-overflow:ellipsis">'+k.naam+(k.frequentie&&k.frequentie>1?' ('+d+')':'')+'</div>';
-
-    sabbaths.forEach(function(sab){
+  // One slot (church x date) - shared by the horizontal and the vertical layout.
+  function slotCell(sab,k,d){
+    var h='';
       var slotId=sab+'__'+k.id+'__'+d;
       var entry=roosterData.rooster.find(function(r){return r.sabbath===sab&&r.kerkId===k.id&&(r.dienst||1)===d;});
       var sp=entry?sprekers.find(function(s){return s.id===entry.sprekerId;}):null;
@@ -21742,9 +21730,50 @@ function renderRoosterMain(){
         h+='style="border:1.5px dashed var(--border);border-radius:8px;padding:6px 4px;color:var(--text3);font-size:14px;text-align:center;cursor:pointer;margin:2px">+</div>';
       }
       h+='</div>';
+    return h;
+  }
+  function dateLabel(sab){var dp=sab.split('-');return parseInt(dp[2])+' '+MAANDEN[parseInt(dp[1])-1];}
+  function kerkLabel(rd){return rd.kerk.naam+(rd.kerk.frequentie&&rd.kerk.frequentie>1?' ('+rd.dienst+')':'');}
+  var headBg='background:linear-gradient(135deg, var(--brand-dark) 0%, var(--brand) 55%, var(--brand-mid) 100%)';
+
+  h+='<div class="card" style="padding:0;overflow:hidden">';
+  h+='<div style="overflow-x:auto;-webkit-overflow-scrolling:touch">';
+
+  if(!vert){
+    // Dates as columns (churches as rows) - same axis order as the PDF.
+    var gridCols=ROOSTER_COL_LABEL+'px repeat('+sabbaths.length+',minmax('+ROOSTER_COL_DATE+'px,1fr))';
+    var gridMinWidth=(ROOSTER_COL_LABEL+sabbaths.length*ROOSTER_COL_DATE)+'px';
+    h+='<div style="display:grid;grid-template-columns:'+gridCols+';min-width:'+gridMinWidth+';'+headBg+'">';
+    h+='<div style="padding:8px 10px;font-size:11px;font-weight:700;color:rgba(255,255,255,.7)">'+tp('rooster_church_col')+'</div>';
+    sabbaths.forEach(function(sab){
+      h+='<div style="padding:8px 4px;font-size:10px;font-weight:700;color:#fff;text-align:center;border-left:1px solid rgba(255,255,255,.2)">'+dateLabel(sab)+'</div>';
     });
     h+='</div>';
-  });
+    rowDefs.forEach(function(rd,ri){
+      var rowBg=ri%2===0?'var(--surface)':'var(--surface2)';
+      h+='<div style="display:grid;grid-template-columns:'+gridCols+';min-width:'+gridMinWidth+';background:'+rowBg+';border-top:1px solid var(--border)">';
+      h+='<div style="padding:8px 10px;font-size:12px;font-weight:700;color:var(--text2);white-space:nowrap;display:flex;align-items:center;overflow:hidden;text-overflow:ellipsis">'+kerkLabel(rd)+'</div>';
+      sabbaths.forEach(function(sab){ h+=slotCell(sab,rd.kerk,rd.dienst); });
+      h+='</div>';
+    });
+  } else {
+    // Dates as rows (churches as columns) - for lists with many dates and few churches.
+    var vCols=ROOSTER_COL_LABEL*0+84+'px repeat('+rowDefs.length+',minmax(120px,1fr))';
+    var vMinWidth=(84+rowDefs.length*120)+'px';
+    h+='<div style="display:grid;grid-template-columns:'+vCols+';min-width:'+vMinWidth+';'+headBg+'">';
+    h+='<div style="padding:8px 10px;font-size:11px;font-weight:700;color:rgba(255,255,255,.7)">'+tp('rooster_date_col')+'</div>';
+    rowDefs.forEach(function(rd){
+      h+='<div style="padding:8px 4px;font-size:11px;font-weight:700;color:#fff;text-align:center;border-left:1px solid rgba(255,255,255,.2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+kerkLabel(rd)+'</div>';
+    });
+    h+='</div>';
+    sabbaths.forEach(function(sab,si){
+      var rowBg=si%2===0?'var(--surface)':'var(--surface2)';
+      h+='<div style="display:grid;grid-template-columns:'+vCols+';min-width:'+vMinWidth+';background:'+rowBg+';border-top:1px solid var(--border)">';
+      h+='<div style="padding:8px 10px;font-size:12px;font-weight:700;color:var(--text2);white-space:nowrap;display:flex;align-items:center">'+dateLabel(sab)+'</div>';
+      rowDefs.forEach(function(rd){ h+=slotCell(sab,rd.kerk,rd.dienst); });
+      h+='</div>';
+    });
+  }
   h+='</div></div>';
 
   // ── SUGGESTIES — right after the grid so a speaker shortage is visible
@@ -22350,7 +22379,21 @@ function roosterExport(){
     for(var dd=1;dd<=freq;dd++){ rowDefs.push({kerk:k,dienst:dd}); }
   });
 
-  var tbl='<table class="rooster-tbl"><thead>';
+  var _pdfVert=(roosterData.dateOrient==='v');
+  function _pdfCell(sab,k,dienst){
+    var entry=roosterData.rooster.find(function(r){return r.sabbath===sab&&r.kerkId===k.id&&(r.dienst||1)===dienst;});
+    var sp=entry?sprekers.find(function(s){return s.id===entry.sprekerId;}):null;
+    var cell;
+    if(entry&&entry.customLabel){ cell=entry.customLabel; }
+    else if(sp){ cell=sp.naam; }
+    else { cell='\u2014'; }
+    var sup=entry&&entry.voetnoot?' <sup>'+entry.voetnoot+')</sup>':'';
+    var thema=entry&&entry.thema?'<br><span class="thema">'+entry.thema+'</span>':'';
+    return '<td>'+cell+sup+thema+'</td>';
+  }
+  var tbl;
+  if(!_pdfVert){
+  tbl='<table class="rooster-tbl"><thead>';
   tbl+='<tr><th class="rlabel"></th>'+sabbaths.map(function(sab){return '<th>'+roosterISOWeek(new Date(sab))+'</th>';}).join('')+'</tr>';
   tbl+='<tr><th class="rlabel">Maand</th>'+sabbaths.map(function(sab){var dp=sab.split('-');return '<th>'+MAANDEN[parseInt(dp[1])-1]+'</th>';}).join('')+'</tr>';
   tbl+='<tr><th class="rlabel">Datum</th>'+sabbaths.map(function(sab){var dp=sab.split('-');return '<th>'+parseInt(dp[2])+'</th>';}).join('')+'</tr>';
@@ -22374,6 +22417,17 @@ function roosterExport(){
     tbl+='</tr>';
   });
   tbl+='</tbody></table>';
+  } else {
+    // Dates as rows, churches as columns (chosen via the on-screen toggle).
+    tbl='<table class="rooster-tbl vert"><thead><tr><th class="rlabel wk">'+tp('rooster_date_col')+'</th><th class="rlabel mo"></th>'+rowDefs.map(function(rd){return '<th>'+rd.kerk.naam+(rd.kerk.frequentie&&rd.kerk.frequentie>1?' ('+rd.dienst+')':'')+'</th>';}).join('')+'</tr></thead><tbody>';
+    sabbaths.forEach(function(sab,si){
+      var dp=sab.split('-');
+      tbl+='<tr'+(si%2===1?' class="alt"':'')+'><td class="rlabel">'+parseInt(dp[2])+' '+MAANDEN[parseInt(dp[1])-1]+'</td><td class="rlabel wkn">'+roosterISOWeek(new Date(sab))+'</td>';
+      rowDefs.forEach(function(rd){ tbl+=_pdfCell(sab,rd.kerk,rd.dienst); });
+      tbl+='</tr>';
+    });
+    tbl+='</tbody></table>';
+  }
 
   // President's woord — only rendered if the president actually typed
   // something, so an empty export doesn't show a blank boxed area.
@@ -22429,6 +22483,7 @@ function roosterExport(){
     // get the bordered/filled treatment.
     +'.rooster-tbl thead th.rlabel{border:none;background:transparent;color:#1a2733}'
     +'.rooster-tbl tbody tr.alt{background:#F7F9FB}'
+    +'.rooster-tbl.vert th.wk{width:16mm}.rooster-tbl.vert th.mo{width:9mm}.rooster-tbl.vert tr{page-break-inside:avoid}.rooster-tbl.vert td.wkn{text-align:center;font-weight:400;color:#888}'
     +'.rooster-tbl .thema{font-size:7.5px;color:#888}'
     +'.footnotes{margin-top:2mm;font-size:7px;color:#555;line-height:1.4}'
     +'.footnotes div{margin-bottom:1px}'
