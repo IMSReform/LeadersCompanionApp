@@ -21207,10 +21207,12 @@ function getRoosterSabbaths(){
   // Advance to first matching weekday (Saturday for preaching; configurable
   // otherwise - #1266 Gabriel: "shouldn't it have a day option? which day
   // it should be done?")
-  while(d.getDay()!==wd) d.setDate(d.getDate()+1);
+  // UTC methods on purpose: the dates are parsed as UTC midnight, so local-time
+  // setDate() drifted one day back after the March DST change.
+  while(d.getUTCDay()!==wd) d.setUTCDate(d.getUTCDate()+1);
   while(d<=end){
     sabbaths.push(d.toISOString().split('T')[0]);
-    d.setDate(d.getDate()+7);
+    d.setUTCDate(d.getUTCDate()+7);
   }
   return sabbaths;
 }
@@ -22464,10 +22466,7 @@ function roosterExport(){
   var _printFrame=_createPrintFrame();
   var w=_printFrame.contentWindow;
   var kerken=roosterData.kerken; var sprekers=roosterData.sprekers;
-  var sabbaths=[];
-  var d=new Date(roosterData.periode.start); var end=new Date(roosterData.periode.end);
-  while(d.getDay()!==6) d.setDate(d.getDate()+1);
-  while(d<=end){sabbaths.push(d.toISOString().split('T')[0]);d.setDate(d.getDate()+7);}
+  var sabbaths=getRoosterSabbaths();
   var MAANDEN=['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'];
 
   // Build one table row per church (+ one extra row per additional dienst
