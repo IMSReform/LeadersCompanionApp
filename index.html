@@ -21708,18 +21708,18 @@ function _rooDivider(){ return '<div style="height:1px;background:var(--border);
 // mode 'upto': lists up to and including the active one. mode 'rest': the lists after it + "new list".
 function renderRoosterListBar(mode){
   _rooEnsureList();
-  var ib='padding:6px 11px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-size:20px;font-weight:700;cursor:pointer;line-height:1;flex-shrink:0;min-width:42px;min-height:38px';
+  var ib='width:32px;height:28px;padding:0;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-size:15px;font-weight:700;cursor:pointer;line-height:1;flex-shrink:0;display:flex;align-items:center;justify-content:center';
   var all=_rooAllListsSorted(); var ai=all.findIndex(function(x){return x.active;});
   var h='';
   all.forEach(function(l,i){
     if(mode==='upto'?i>ai:i<=ai) return;
     if(l.active){
-      h+='<div class="card" style="padding:0;margin-bottom:10px;overflow:hidden"><div onclick="roosterToggleBody()" style="display:flex;align-items:center;gap:6px;padding:10px 12px;cursor:pointer;background:var(--brand)">';
+      h+='<div class="card" style="padding:0;margin-bottom:10px;overflow:hidden"><div onclick="roosterToggleBody()" style="display:flex;align-items:center;gap:6px;padding:8px 12px;cursor:pointer;background:var(--brand)">';
       h+='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" style="flex-shrink:0;transition:transform .2s;transform:rotate('+(_rooBodyOpen?'180':'0')+'deg)"><polyline points="6 9 12 15 18 9"/></svg>';
       h+='<span style="flex:1;min-width:0;font-size:14px;font-weight:800;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escapeHtml(l.name)+'</span>';
-      h+='<button onclick="event.stopPropagation();roosterToggleSettings()" title="'+escapeHtml(tp('rooster_settings_lbl'))+'" style="'+ib+';font-size:28px'+(_rooSetOpen?';background:var(--brand-light);color:var(--brand)':'')+'">⚙</button>';
+      h+='<button onclick="event.stopPropagation();roosterToggleSettings()" title="'+escapeHtml(tp('rooster_settings_lbl'))+'" style="'+ib+';font-size:21px'+(_rooSetOpen?';background:var(--brand-light);color:var(--brand)':'')+'">⚙</button>';
       h+='<button onclick="event.stopPropagation();roosterRenameList()" title="'+escapeHtml(tp('rooster_list_rename_tip'))+'" style="'+ib+'">✎</button>';
-      if(all.length>1) h+='<button onclick="event.stopPropagation();roosterDeleteList()" title="'+escapeHtml(tp('rooster_list_delete_tip'))+'" style="'+ib+';color:#E74C3C">✕</button>';
+      if(all.length>1) h+='<button onclick="event.stopPropagation();roosterDeleteList()" title="'+escapeHtml(tp('rooster_list_delete_tip'))+'" style="'+ib+'">✕</button>';
       h+='</div></div>';
     } else {
       h+='<div class="card" style="padding:0;margin-bottom:10px;overflow:hidden"><div onclick="roosterOpenList(\''+l.id+'\')" style="display:flex;align-items:center;gap:6px;padding:12px;cursor:pointer;background:var(--brand)">';
@@ -22147,8 +22147,8 @@ function renderRoosterMain(){
   // Less-used / destructive actions tucked into a small menu
   h+='<div id="rooster-more" style="display:none;margin-bottom:8px;border:1px solid var(--border);border-radius:8px;overflow:hidden;background:var(--surface)">';
   h+='<button onclick="roosterReset()" style="'+_mi+';border-top:none">'+tp('rooster_reset_btn')+'</button>';
-  h+='<button onclick="roosterClearProgram()" style="'+_mi+';color:#E74C3C">'+tp('rooster_clear_prog_btn')+'</button>';
-  h+='<button onclick="roosterClearAllData()" style="'+_mi+';color:#E74C3C">'+tp('rooster_clear_data_btn')+'</button>';
+  h+='<button onclick="roosterClearProgram()" style="'+_mi+'">'+tp('rooster_clear_prog_btn')+'</button>';
+  h+='<button onclick="roosterClearAllData()" style="'+_mi+'">'+tp('rooster_clear_data_btn')+'</button>';
   h+='</div>';
   h+='<label style="display:flex;align-items:center;gap:6px;margin-bottom:8px;font-size:11px;color:var(--text2);cursor:pointer"><input type="checkbox" onchange="roosterSetYear(this.checked)"'+(_rooYear?' checked':'')+' style="width:14px;height:14px;flex-shrink:0"><span>'+tp('rooster_year_view')+'</span></label>';
   h+='<label style="display:flex;align-items:center;gap:6px;margin-bottom:8px;font-size:11px;color:var(--text2);cursor:pointer"><input type="checkbox" onchange="roosterSetOnline(this.checked)"'+(roosterData.online?' checked':'')+' style="width:14px;height:14px;flex-shrink:0"><span>'+tp('rooster_online_mode')+'</span></label>';
@@ -22875,7 +22875,7 @@ function roosterEditSlot(sab, kerkId, dienst){
   h+='</datalist>';
   h+='<div style="display:flex;gap:8px">';
   h+='<button onclick="roosterSaveSlot(\''+sab+'\',\''+kerkId+'\','+dienst+');closeModals()" class="btn primary" style="flex:1">'+tp('rooster_re_save')+'</button>';
-  if(entry) h+='<button onclick="roosterClearSlot(\''+sab+'\',\''+kerkId+'\','+dienst+');closeModals()" class="btn danger">'+tp('rooster_re_clear')+'</button>';
+  if(entry) h+='<button onclick="roosterClearSlot(\''+sab+'\',\''+kerkId+'\','+dienst+');closeModals()" class="btn">'+tp('rooster_re_clear')+'</button>';
   h+='<button onclick="closeModals()" class="btn">'+tp('rooster_re_cancel')+'</button>';
   h+='</div>';
   h+='<button onclick="roosterToggleGesloten(\''+sab+'\',\''+kerkId+'\');closeModals()" style="width:100%;margin-top:8px;padding:8px;border-radius:10px;background:none;border:1.5px dashed var(--border);color:var(--text3);font-size:11px;font-weight:700;cursor:pointer">'+tp('rooster_re_closed_on')+' '+parseInt(dp[2])+' '+ML[parseInt(dp[1])]+'</button>';
