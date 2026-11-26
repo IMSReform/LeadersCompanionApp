@@ -22238,11 +22238,32 @@ function roosterAutoGenereer(){
   // Starting offset changes every generation
   var startOffset=_roosterGenCount;
 
+  // Pass 1 — confirmed (✓) dates first. People with only a few ✓ (at most half
+  // of the period; blanket "all available" doesn't count) are placed on those
+  // dates before the normal fair-rotation fill below. Not locked, so a new
+  // Genereer recalculates them; manually locked slots always win.
+  var _nSab=sabbaths.length;
+  sabbaths.forEach(function(sab){
+    genSprekers.forEach(function(sp){
+      var conf=(sp.beschikbaar||[]).filter(function(d){return sabbaths.indexOf(d)>=0;}).length;
+      if(!conf||conf>_nSab/2) return;
+      if((sp.beschikbaar||[]).indexOf(sab)<0) return;
+      if(newRooster.some(function(r){return r.sabbath===sab&&r.sprekerId===sp.id;})) return;
+      var open=slots.filter(function(sl){
+        return sl.sabbath===sab && !newRooster.some(function(r){return r.sabbath===sab&&r.kerkId===sl.kerkId&&(r.dienst||1)===sl.dienst;});
+      });
+      if(!open.length) return;
+      var pick=open.find(function(sl){return (sp.voorkeur||[]).indexOf(sl.kerkId)>=0;})||open[0];
+      newRooster.push({sabbath:sab,kerkId:pick.kerkId,dienst:pick.dienst,sprekerId:sp.id,thema:'',opmerking:''});
+      spCount[sp.id]=(spCount[sp.id]||0)+1;
+    });
+  });
+
   slots.forEach(function(slot,slotIdx){
     var sab=slot.sabbath; var kerkId=slot.kerkId; var dienst=slot.dienst;
     var key=kerkId+'_'+dienst;
 
-    var lockedEntry=lockedRooster.find(function(r){return r.sabbath===sab&&r.kerkId===kerkId&&(r.dienst||1)===dienst;});
+    var lockedEntry=newRooster.find(function(r){return r.sabbath===sab&&r.kerkId===kerkId&&(r.dienst||1)===dienst;});
     if(lockedEntry){
       lastInKerk[key]=lockedEntry.sprekerId; // keep the alternation logic aware of the locked pick
       return; // don't touch manually-placed slots
