@@ -21691,9 +21691,10 @@ function renderRoosterYear(sabbaths){
           return sp?sp.naam.split(' ')[0]:'';
         }).filter(Boolean);
         var pres=roosterData.online&&_rooPres(iso);
-        h+='<div style="min-height:38px;border-radius:6px;padding:2px;text-align:center;background:'+(pres?'rgba(131,163,113,.55)':'var(--brand-light)')+';border:1px solid '+(pres?'#83A371':'var(--brand)')+'">';
-        h+='<div style="font-size:10px;font-weight:800;color:var(--text)">'+d+'</div>';
-        h+='<div style="font-size:8px;line-height:1.15;color:var(--text2);overflow-wrap:anywhere">'+(names.join(', ')||'\u2014')+'</div></div>';
+        var hit=!!_rooHi&&roosterData.rooster.some(function(r){return r.sabbath===iso&&r.sprekerId===_rooHi;});
+        h+='<div style="min-height:38px;border-radius:6px;padding:2px;text-align:center;'+(hit?'background:var(--brand);border:2px solid var(--brand-dark);box-shadow:0 0 0 2px var(--brand-light)':'background:'+(pres?'rgba(131,163,113,.55)':'var(--brand-light)')+';border:1px solid '+(pres?'#83A371':'var(--brand)'))+'">';
+        h+='<div style="font-size:10px;font-weight:800;color:'+(hit?'#fff':'var(--text)')+'">'+d+'</div>';
+        h+='<div style="font-size:8px;line-height:1.15;color:'+(hit?'#fff':'var(--text2)')+';overflow-wrap:anywhere">'+(names.join(', ')||'\u2014')+'</div></div>';
       } else {
         h+='<div style="min-height:38px;padding:2px;text-align:center;font-size:10px;color:var(--text3);opacity:.55">'+d+'</div>';
       }
