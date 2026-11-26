@@ -21800,13 +21800,13 @@ function renderRoosterMain(){
   var headBg='background:linear-gradient(135deg, var(--brand-dark) 0%, var(--brand) 55%, var(--brand-mid) 100%)';
 
   h+='<div class="card" style="padding:0;overflow:hidden">';
-  h+='<div style="overflow-x:auto;-webkit-overflow-scrolling:touch">';
+  h+='<div id="rooster-grid-scroll" style="overflow:auto;-webkit-overflow-scrolling:touch;max-height:calc(100dvh - 240px);min-height:280px">';
 
   if(!vert){
     // Dates as columns (churches as rows) - same axis order as the PDF.
     var gridCols=ROOSTER_COL_LABEL+'px repeat('+sabbaths.length+',minmax('+ROOSTER_COL_DATE+'px,1fr))';
     var gridMinWidth=(ROOSTER_COL_LABEL+sabbaths.length*ROOSTER_COL_DATE)+'px';
-    h+='<div style="display:grid;grid-template-columns:'+gridCols+';min-width:'+gridMinWidth+';'+headBg+'">';
+    h+='<div style="display:grid;grid-template-columns:'+gridCols+';min-width:'+gridMinWidth+';position:sticky;top:0;z-index:5;'+headBg+'">';
     h+='<div style="padding:8px 10px;font-size:11px;font-weight:700;color:rgba(255,255,255,.7)">'+tp('rooster_church_col')+'</div>';
     sabbaths.forEach(function(sab){
       h+='<div style="padding:8px 4px;font-size:10px;font-weight:700;color:#fff;text-align:center;border-left:1px solid rgba(255,255,255,.2)">'+dateLabel(sab)+'</div>';
@@ -21823,7 +21823,7 @@ function renderRoosterMain(){
     // Dates as rows (churches as columns) - for lists with many dates and few churches.
     var vCols=ROOSTER_COL_LABEL*0+84+'px repeat('+rowDefs.length+',minmax(120px,1fr))';
     var vMinWidth=(84+rowDefs.length*120)+'px';
-    h+='<div style="display:grid;grid-template-columns:'+vCols+';min-width:'+vMinWidth+';'+headBg+'">';
+    h+='<div style="display:grid;grid-template-columns:'+vCols+';min-width:'+vMinWidth+';position:sticky;top:0;z-index:5;'+headBg+'">';
     h+='<div style="padding:8px 10px;font-size:11px;font-weight:700;color:rgba(255,255,255,.7)">'+tp('rooster_date_col')+'</div>';
     rowDefs.forEach(function(rd){
       h+='<div style="padding:8px 4px;font-size:11px;font-weight:700;color:#fff;text-align:center;border-left:1px solid rgba(255,255,255,.2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+kerkLabel(rd)+'</div>';
