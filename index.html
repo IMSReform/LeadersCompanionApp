@@ -22211,6 +22211,8 @@ function renderRoosterMain(){
   h+='<button onclick="roosterReset()" style="'+_mi+';border-top:none">'+tp('rooster_reset_btn')+'</button>';
   h+='<button onclick="roosterClearProgram()" style="'+_mi+'">'+tp('rooster_clear_prog_btn')+'</button>';
   h+='<button onclick="roosterClearAllData()" style="'+_mi+'">'+tp('rooster_clear_data_btn')+'</button>';
+  h+='<button onclick="cronoDownloadList()" style="'+_mi+'">'+tp('crono_export_file')+'</button>';
+  h+='<button onclick="cronoImportPick()" style="'+_mi+'">'+tp('crono_import')+'</button>';
   h+='</div>';
   h+='<label style="display:flex;align-items:center;gap:6px;margin-bottom:8px;font-size:11px;color:var(--text2);cursor:pointer"><input type="checkbox" onchange="roosterSetYear(this.checked)"'+(_rooYear?' checked':'')+' style="width:14px;height:14px;flex-shrink:0"><span>'+tp('rooster_year_view')+'</span></label>';
   h+='<label style="display:flex;align-items:center;gap:6px;margin-bottom:8px;font-size:11px;color:var(--text2);cursor:pointer"><input type="checkbox" onchange="roosterSetOnline(this.checked)"'+(roosterData.online?' checked':'')+' style="width:14px;height:14px;flex-shrink:0"><span>'+tp('rooster_online_mode')+'</span></label>';
@@ -23182,6 +23184,42 @@ function roosterExport(){
   w.document.close();
   _armPrintFrameCleanup(_printFrame);
 }
+
+
+// ── Share lists with the Workers app (Cronogramas) ──
+(function(){var T={"nl": {"crono_export_file": "Lijst exporteren (bestand voor werker)", "crono_import": "Lijst importeren (bestand van werker)", "crono_import_ok": "Lijst geïmporteerd: ", "crono_import_bad": "Dit is geen geldig lijstbestand."}, "en": {"crono_export_file": "Export list (file for worker)", "crono_import": "Import list (file from worker)", "crono_import_ok": "List imported: ", "crono_import_bad": "This is not a valid list file."}, "es": {"crono_export_file": "Exportar lista (archivo para obrero)", "crono_import": "Importar lista (archivo de obrero)", "crono_import_ok": "Lista importada: ", "crono_import_bad": "Este no es un archivo de lista válido."}, "fr": {"crono_export_file": "Exporter la liste (fichier pour ouvrier)", "crono_import": "Importer une liste (fichier d’ouvrier)", "crono_import_ok": "Liste importée : ", "crono_import_bad": "Ce n’est pas un fichier de liste valide."}, "de": {"crono_export_file": "Liste exportieren (Datei für Mitarbeiter)", "crono_import": "Liste importieren (Datei von Mitarbeiter)", "crono_import_ok": "Liste importiert: ", "crono_import_bad": "Das ist keine gültige Listendatei."}, "ro": {"crono_export_file": "Exportă lista (fișier pentru lucrător)", "crono_import": "Importă o listă (fișier de la lucrător)", "crono_import_ok": "Listă importată: ", "crono_import_bad": "Acesta nu este un fișier de listă valid."}, "it": {"crono_export_file": "Esporta lista (file per operaio)", "crono_import": "Importa una lista (file da operaio)", "crono_import_ok": "Lista importata: ", "crono_import_bad": "Questo non è un file di lista valido."}, "pt": {"crono_export_file": "Exportar lista (ficheiro para obreiro)", "crono_import": "Importar lista (ficheiro de obreiro)", "crono_import_ok": "Lista importada: ", "crono_import_bad": "Este não é um ficheiro de lista válido."}};Object.keys(T).forEach(function(l){PRES_STRINGS[l]=PRES_STRINGS[l]||{};Object.assign(PRES_STRINGS[l],T[l]);});})();
+function cronoDownloadList(){
+  var st=_rooStash();
+  var payload={zdaCronograma:1,exportedAt:new Date().toISOString(),list:st.entry};
+  var blob=new Blob([JSON.stringify(payload)],{type:'application/json'});
+  var a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download=(st.entry.name||'cronograma').replace(/[^\w\-]+/g,'_')+'.cronograma.json';
+  document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); },1000);
+}
+function cronoImportPick(){
+  var inp=document.createElement('input'); inp.type='file'; inp.accept='.json,application/json';
+  inp.onchange=function(){ var f=inp.files&&inp.files[0]; if(!f) return; var r=new FileReader(); r.onload=function(){ cronoImportText(String(r.result||'')); }; r.readAsText(f); };
+  inp.click();
+}
+function cronoImportText(text){
+  var d=null; try{ d=JSON.parse(text); }catch(e){}
+  var lists=(d&&d.zdaCronograma)?(d.list?[d.list]:(d.lists||[])):[];
+  lists=lists.filter(function(l){return l&&l.data&&typeof l.data==='object';});
+  if(!lists.length){ alert(tp('crono_import_bad')); return; }
+  _rooEnsureList();
+  var names={}; names[roosterData.listName]=1; (roosterData.otherLists||[]).forEach(function(l){names[l.name]=1;});
+  var added=[];
+  lists.forEach(function(l,i){
+    var nm=(l.name||'Lista'), base=nm, n=2; while(names[nm]){ nm=base+' ('+(n++)+')'; } names[nm]=1;
+    var data=JSON.parse(JSON.stringify(l.data)); delete data.otherLists; delete data.listId; delete data.listName; delete data.listGroup;
+    roosterData.otherLists.push({id:'l'+Date.now()+Math.random().toString(36).slice(2,6)+i,name:nm,group:(l.group||''),data:data});
+    added.push(nm);
+  });
+  saveRooster(); renderRooster();
+  alert(tp('crono_import_ok')+added.join(', '));
+}
+
+
 
 // INIT
 function finishBootPres(){
