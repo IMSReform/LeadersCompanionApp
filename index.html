@@ -21755,6 +21755,7 @@ function roosterListEditSave(){
 function renderRoosterListBar(mode){
   _rooEnsureList();
   var ib='width:32px;height:28px;padding:0;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-size:15px;font-weight:700;cursor:pointer;line-height:1;flex-shrink:0;display:flex;align-items:center;justify-content:center';
+  var ib2='width:32px;height:28px;padding:0;border-radius:8px;border:1px solid rgba(255,255,255,.4);background:transparent;color:#fff;font-size:15px;font-weight:700;cursor:pointer;line-height:1;flex-shrink:0;display:flex;align-items:center;justify-content:center';
   var items=_rooItems(); var ai=items.findIndex(function(it){return it.t==='list'&&it.l.active;});
   var h='';
   items.forEach(function(it,i){
@@ -21774,9 +21775,9 @@ function renderRoosterListBar(mode){
       h+=wrap+'<div onclick="roosterToggleBody()" style="display:flex;align-items:center;gap:6px;padding:8px 12px;cursor:pointer;background:var(--brand)">';
       h+='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" style="flex-shrink:0;transition:transform .2s;transform:rotate('+(_rooBodyOpen?'180':'0')+'deg)"><polyline points="6 9 12 15 18 9"/></svg>';
       h+='<span style="flex:1;min-width:0;font-size:14px;font-weight:800;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escapeHtml(l.name)+'</span>';
-      h+='<button onclick="event.stopPropagation();roosterToggleSettings()" title="'+escapeHtml(tp('rooster_settings_lbl'))+'" style="'+ib+';font-size:21px'+(_rooSetOpen?';background:var(--brand-light);color:var(--brand)':'')+'">⚙</button>';
-      h+='<button onclick="event.stopPropagation();roosterListEdit()" title="'+escapeHtml(tp('rooster_list_rename_tip'))+'" style="'+ib+'">✎</button>';
-      if(_rooAllListsSorted().length>1) h+='<button onclick="event.stopPropagation();roosterDeleteList()" title="'+escapeHtml(tp('rooster_list_delete_tip'))+'" style="'+ib+'">✕</button>';
+      h+='<button onclick="event.stopPropagation();roosterToggleSettings()" title="'+escapeHtml(tp('rooster_settings_lbl'))+'" style="'+ib2+';font-size:21px'+(_rooSetOpen?';background:rgba(255,255,255,.25)':'')+'">⚙</button>';
+      h+='<button onclick="event.stopPropagation();roosterListEdit()" title="'+escapeHtml(tp('rooster_list_rename_tip'))+'" style="'+ib2+'">✎</button>';
+      if(_rooAllListsSorted().length>1) h+='<button onclick="event.stopPropagation();roosterDeleteList()" title="'+escapeHtml(tp('rooster_list_delete_tip'))+'" style="'+ib2+'">✕</button>';
       h+='</div></div>';
     } else {
       h+=wrap+'<div onclick="roosterOpenList(\''+l.id+'\')" style="display:flex;align-items:center;gap:6px;padding:12px;cursor:pointer;background:var(--brand)">';
