@@ -21125,6 +21125,10 @@ function roosterToggleGesloten(sab,kerkId){
   saveRooster(); renderRooster();
 }
 
+function _rooMon(){
+  var l=(typeof LANG==='string'&&LANG)?LANG:'nl';
+  return [0,1,2,3,4,5,6,7,8,9,10,11].map(function(i){ try{ return new Date(Date.UTC(2024,i,1)).toLocaleDateString(l,{month:'short',timeZone:'UTC'}).replace(/\./g,''); }catch(e){ return String(i+1); } });
+}
 var _roosterTab = 'rooster'; // 'rooster'|'kerken'|'sprekers'
 // Bumped on every "Genereer rooster" click so repeat generations rotate to
 // different results instead of always producing the same assignment. Was
@@ -21384,7 +21388,7 @@ function renderRoosterSprekers(){
   roosterSortSprekersAlpha();
   var sabbaths = getRoosterSabbaths();
   var kerken   = roosterData.kerken;
-  var MAANDEN  = ['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'];
+  var MAANDEN  = _rooMon();
   var h = '<div>';
 
   if(!roosterData.sprekers.length){
@@ -21542,7 +21546,7 @@ function roosterReview(){
   var sp=roosterData.sprekers.filter(function(s){return s.actief!==false;});
   var byId={}; roosterData.sprekers.forEach(function(s){byId[s.id]=s;});
   var nm=function(id){ return byId[id]?rpName(byId[id]):'?'; };
-  var MN=['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'];
+  var MN=_rooMon();
   var dl=function(sab){ var p=sab.split('-'); return parseInt(p[2])+' '+MN[parseInt(p[1])-1]; };
   var kn=function(id){ var k=roosterData.kerken.find(function(x){return x.id===id;}); return k?k.naam:''; };
   var inSab={}; sabs.forEach(function(d){inSab[d]=true;});
@@ -22255,7 +22259,7 @@ function renderRoosterMain(){
   // Only ONE header row (date, e.g. "16 aug") instead of the PDF's three
   // (week nr / month / date) — the week number is a print-only convenience
   // for the newsletter, not needed while editing.
-  var MAANDEN=['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'];
+  var MAANDEN=_rooMon();
   var rowDefs=[];
   kerken.forEach(function(k){
     var freq=k.frequentie||1;
@@ -23019,7 +23023,7 @@ function roosterExport(){
   var w=_printFrame.contentWindow;
   var kerken=roosterData.kerken; var sprekers=roosterData.sprekers;
   var sabbaths=getRoosterSabbaths();
-  var MAANDEN=['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'];
+  var MAANDEN=_rooMon();
 
   // Build one table row per church (+ one extra row per additional dienst
   // beyond the first, labeled "Kerknaam (2)" etc.) — this is the axis swap
