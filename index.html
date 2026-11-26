@@ -21289,6 +21289,7 @@ function renderRooster(){
     h+='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="2" style="transform:rotate(180deg)"><polyline points="6 9 12 15 18 9"/></svg></div>';
     h+=_setP+_setPer;
   })();
+  if(!_rooBodyOpen){ el.innerHTML=h; return; }
 
   // Tab bar — Gemeenten genericizes to Locaties when this rooster isn't
   // used for preaching. The Sprekers/people tab (#1266 Gabriel: "still have
@@ -21662,7 +21663,7 @@ function roosterNewList(){
     fresh.sprekers=_rooClone(roosterData.sprekers||[]).map(function(s){ s.beschikbaar=[]; s.onbeschikbaar=[]; s.presencialOK=s.presencialOK; return s; });
   }
   fresh.listId='l'+Date.now()+Math.random().toString(36).slice(2,6); fresh.listName=name.trim(); fresh.otherLists=others;
-  roosterData=fresh; _rooResetUi(); _rooSetOpen=true; saveRooster(); renderRooster();
+  roosterData=fresh; _rooResetUi(); _rooSetOpen=true; _rooBodyOpen=true; saveRooster(); renderRooster();
 }
 function roosterSwitchList(id){
   if(!id||id===roosterData.listId) return;
@@ -21690,29 +21691,32 @@ function roosterDeleteList(){
 }
 var _rooSetOpen=false; // Settings (purpose + period) only show after tapping + (new list) or the gear
 function roosterToggleSettings(){ _rooSetOpen=!_rooSetOpen; renderRooster(); }
-var _rooListOpen=false;
-function roosterToggleListBar(){ _rooListOpen=!_rooListOpen; renderRooster(); }
+var _rooBodyOpen=true;
+try{ var _sbo=localStorage.getItem('_zdapres_rooster_bodyopen'); if(_sbo!==null) _rooBodyOpen=_sbo==='1'; }catch(e){}
+function roosterToggleBody(){ _rooBodyOpen=!_rooBodyOpen; try{ localStorage.setItem('_zdapres_rooster_bodyopen',_rooBodyOpen?'1':'0'); }catch(e){} renderRooster(); }
+function roosterOpenList(id){ _rooBodyOpen=true; try{ localStorage.setItem('_zdapres_rooster_bodyopen','1'); }catch(e){} roosterSwitchList(id); }
+// Each saved list is an accordion row: the active one expands to show its whole
+// Rooster (tap to collapse); tapping another list switches to it.
 function renderRoosterListBar(){
   _rooEnsureList();
-  var bs='padding:6px 10px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-size:13px;font-weight:700;cursor:pointer;line-height:1';
-  var n=roosterData.otherLists.length+1;
+  var ib='padding:5px 8px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-size:13px;font-weight:700;cursor:pointer;line-height:1;flex-shrink:0';
   var h='<div class="card" style="padding:0;margin-bottom:10px;overflow:hidden">';
-  h+='<div onclick="roosterToggleListBar()" style="display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer">';
-  h+='<span style="font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.05em">'+escapeHtml(tp('rooster_list_lbl')).toUpperCase()+'</span>';
-  h+='<span style="flex:1;min-width:0;font-size:13px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escapeHtml(roosterData.listName)+(n>1?' <span style="font-weight:600;color:var(--text3)">('+n+')</span>':'')+'</span>';
-  h+='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="2" style="transition:transform .2s;transform:rotate('+(_rooListOpen?'180':'0')+'deg)"><polyline points="6 9 12 15 18 9"/></svg></div>';
-  if(_rooListOpen){
-    h+='<div style="display:flex;align-items:center;gap:6px;padding:0 12px 12px;border-top:1px solid var(--border);padding-top:10px">';
-    h+='<select onchange="roosterSwitchList(this.value)" style="flex:1;min-width:0;padding:7px 9px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface);font-size:13px;font-weight:700;color:var(--text)">';
-    h+='<option value="'+roosterData.listId+'" selected>'+escapeHtml(roosterData.listName)+'</option>';
-    roosterData.otherLists.forEach(function(l){ h+='<option value="'+l.id+'">'+escapeHtml(l.name)+'</option>'; });
-    h+='</select>';
-    h+='<button onclick="roosterToggleSettings()" title="'+escapeHtml(tp('rooster_settings_lbl'))+'" style="'+bs+(_rooSetOpen?';background:var(--brand-light);color:var(--brand)':'')+'">\u2699</button>';
-    h+='<button onclick="roosterNewList()" title="'+escapeHtml(tp('rooster_list_new_tip'))+'" style="'+bs+'">+</button>';
-    h+='<button onclick="roosterRenameList()" title="'+escapeHtml(tp('rooster_list_rename_tip'))+'" style="'+bs+'">✎</button>';
-    if(roosterData.otherLists.length) h+='<button onclick="roosterDeleteList()" title="'+escapeHtml(tp('rooster_list_delete_tip'))+'" style="'+bs+';color:#E74C3C">\u{1F5D1}</button>';
-    h+='</div>';
-  }
+  // active list row
+  h+='<div onclick="roosterToggleBody()" style="display:flex;align-items:center;gap:6px;padding:10px 12px;cursor:pointer;background:var(--brand-light)">';
+  h+='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="2.4" style="flex-shrink:0;transition:transform .2s;transform:rotate('+(_rooBodyOpen?'180':'0')+'deg)"><polyline points="6 9 12 15 18 9"/></svg>';
+  h+='<span style="flex:1;min-width:0;font-size:14px;font-weight:800;color:var(--brand);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escapeHtml(roosterData.listName)+'</span>';
+  h+='<button onclick="event.stopPropagation();roosterToggleSettings()" title="'+escapeHtml(tp('rooster_settings_lbl'))+'" style="'+ib+(_rooSetOpen?';background:var(--brand);color:#fff':'')+'">⚙</button>';
+  h+='<button onclick="event.stopPropagation();roosterRenameList()" title="'+escapeHtml(tp('rooster_list_rename_tip'))+'" style="'+ib+'">✎</button>';
+  if(roosterData.otherLists.length) h+='<button onclick="event.stopPropagation();roosterDeleteList()" title="'+escapeHtml(tp('rooster_list_delete_tip'))+'" style="'+ib+';color:#E74C3C">\u{1F5D1}</button>';
+  h+='</div>';
+  // other lists
+  roosterData.otherLists.forEach(function(l){
+    h+='<div onclick="roosterOpenList(\''+l.id+'\')" style="display:flex;align-items:center;gap:6px;padding:10px 12px;cursor:pointer;border-top:1px solid var(--border)">';
+    h+='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="2.4" style="flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg>';
+    h+='<span style="flex:1;min-width:0;font-size:14px;font-weight:600;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escapeHtml(l.name)+'</span></div>';
+  });
+  // new list
+  h+='<div onclick="roosterNewList()" style="display:flex;align-items:center;gap:6px;padding:9px 12px;cursor:pointer;border-top:1px solid var(--border);color:var(--text3);font-size:12px;font-weight:700">+ '+escapeHtml(tp('rooster_list_new_tip'))+'</div>';
   h+='</div>';
   return h;
 }
