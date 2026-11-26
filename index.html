@@ -22893,6 +22893,7 @@ function roosterExport(){
     // Tightened overall — was padding:8mm, read as noticeably airier than
     // the reference layout once side by side.
     +'body{font-family:Arial,Helvetica,sans-serif;color:#1a2733;margin:0;padding:5mm;font-size:9px}'
+    +'.pg{width:100%;border-collapse:collapse}.pg>thead>tr>td,.pg>tfoot>tr>td,.pg>tbody>tr>td{padding:0;border:none}'
     +'.pdf-title{font-size:13px;font-weight:700;color:#335781;margin:0 0 3mm}.pdf-title span{font-size:8.5px;font-weight:400;color:#666;margin-left:8px}'
     +'.quote-block{columns:3;column-gap:5mm;font-size:7.5px;line-height:1.25;margin-bottom:2mm;text-align:justify}'
     +'.quote-block p{margin:0 0 3px}'
@@ -22937,13 +22938,15 @@ function roosterExport(){
   // image per language. 8pt keeps it proportioned for this PDF's smaller A5
   // page (the GC export's A4 page uses 11pt).
   // Own block with clearance below, so the isotope can never run into the table header.
-  w.document.write('<div style="display:block;overflow:visible;padding-top:6mm;margin-bottom:6mm;break-after:avoid;page-break-after:avoid">'+orgHeaderHtml(8)+'</div>');
+  w.document.write('<table class="pg"><thead><tr><td><div style="height:9mm"></div></td></tr></thead><tfoot><tr><td><div style="height:9mm"></div></td></tr></tfoot><tbody><tr><td>');
+  w.document.write('<div style="display:block;overflow:visible;padding-top:10mm;margin-bottom:6mm;break-after:avoid;page-break-after:avoid">'+orgHeaderHtml(8)+'</div>');
   var _pdfTitle=(roosterData.pdfTitle&&roosterData.pdfTitle.trim())||((roosterData.purpose||'prediking')==='prediking'?tp('rooster_pdf_title'):roosterPurposeLabel());
   var _pdfPeriod=sabbaths.length?(MAANDEN[parseInt(sabbaths[0].split('-')[1])-1]+' '+sabbaths[0].split('-')[0]+' \u2013 '+MAANDEN[parseInt(sabbaths[sabbaths.length-1].split('-')[1])-1]+' '+sabbaths[sabbaths.length-1].split('-')[0]):'';
   w.document.write('<div class="pdf-title">'+escapeHtml(_pdfTitle)+(_pdfPeriod?'<span>'+_pdfPeriod+'</span>':'')+'</div>');
   w.document.write(quoteHtml);
   w.document.write(tbl);
   w.document.write(footnotesHtml);
+  w.document.write('</td></tr></tbody></table>');
   w.document.write('<br><button class="print-btn" onclick="window.print()">'+tp('rooster_pdf_print')+'</button>');
   // Auto-open the print/save-as-PDF dialog once the page (incl. the
   // isotope image inside the letterhead) has finished loading, instead of
