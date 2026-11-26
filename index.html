@@ -21272,7 +21272,7 @@ function renderRooster(){
   // sound/AV, ushering, music, offering, or a custom "Other" label), shown
   // above everything else since it frames what the tabs below mean. Also
   // carries the short usage explanation he asked for.
-  h+=renderRoosterListBar();
+  h+=renderRoosterListBar('upto');
   var _setP=renderRoosterPurposeCard();
 
   // Periode — moved above the Rooster/Gemeenten/Sprekers tabs since it's a
@@ -21288,8 +21288,9 @@ function renderRooster(){
     h+='<span style="flex:1;min-width:0;font-size:12px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escapeHtml(sum)+'</span>';
     h+='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="2" style="transform:rotate(180deg)"><polyline points="6 9 12 15 18 9"/></svg></div>';
     h+=_setP+_setPer;
+    h+=_rooDivider();
   })();
-  if(!_rooBodyOpen){ el.innerHTML=h; return; }
+  if(!_rooBodyOpen){ el.innerHTML=h+renderRoosterListBar('rest'); return; }
 
   // Tab bar — Gemeenten genericizes to Locaties when this rooster isn't
   // used for preaching. The Sprekers/people tab (#1266 Gabriel: "still have
@@ -21310,6 +21311,7 @@ function renderRooster(){
   else if(_roosterTab==='sprekers') h+=renderRoosterSprekers();
   else h+=renderRoosterMain();
 
+  h+=_rooDivider()+renderRoosterListBar('rest');
   el.innerHTML=h;
 }
 
@@ -21693,67 +21695,38 @@ var _rooBodyOpen=true;
 try{ var _sbo=localStorage.getItem('_zdapres_rooster_bodyopen'); if(_sbo!==null) _rooBodyOpen=_sbo==='1'; }catch(e){}
 function roosterToggleBody(){ _rooBodyOpen=!_rooBodyOpen; try{ localStorage.setItem('_zdapres_rooster_bodyopen',_rooBodyOpen?'1':'0'); }catch(e){} renderRooster(); }
 function roosterOpenList(id){ _rooBodyOpen=true; try{ localStorage.setItem('_zdapres_rooster_bodyopen','1'); }catch(e){} roosterSwitchList(id); }
-// Each saved list is an accordion row: the active one expands to show its whole
-// Rooster (tap to collapse); tapping another list switches to it.
-function renderRoosterListBar(){
+// Every saved list is its own card. The active list's card is followed by its
+// whole Rooster (when expanded); "+ new list" sits in its own card at the bottom.
+function _rooAllListsSorted(){
+  var all=[{id:roosterData.listId,name:roosterData.listName,active:true}].concat((roosterData.otherLists||[]).map(function(l){return {id:l.id,name:l.name,active:false};}));
+  all.sort(function(a,b){ return a.id<b.id?-1:(a.id>b.id?1:0); });
+  return all;
+}
+function _rooDivider(){ return '<div style="height:1px;background:var(--border);margin:4px 2px 12px"></div>'; }
+// mode 'upto': lists up to and including the active one. mode 'rest': the lists after it + "new list".
+function renderRoosterListBar(mode){
   _rooEnsureList();
   var ib='padding:6px 11px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-size:20px;font-weight:700;cursor:pointer;line-height:1;flex-shrink:0;min-width:42px;min-height:38px';
-  var h='<div class="card" style="padding:0;margin-bottom:10px;overflow:hidden">';
-  // active list row
-  h+='<div onclick="roosterToggleBody()" style="display:flex;align-items:center;gap:6px;padding:10px 12px;cursor:pointer;background:var(--brand-light)">';
-  h+='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="2.4" style="flex-shrink:0;transition:transform .2s;transform:rotate('+(_rooBodyOpen?'180':'0')+'deg)"><polyline points="6 9 12 15 18 9"/></svg>';
-  h+='<span style="flex:1;min-width:0;font-size:14px;font-weight:800;color:var(--brand);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escapeHtml(roosterData.listName)+'</span>';
-  h+='<button onclick="event.stopPropagation();roosterToggleSettings()" title="'+escapeHtml(tp('rooster_settings_lbl'))+'" style="'+ib+(_rooSetOpen?';background:var(--brand);color:#fff':'')+'">⚙</button>';
-  h+='<button onclick="event.stopPropagation();roosterRenameList()" title="'+escapeHtml(tp('rooster_list_rename_tip'))+'" style="'+ib+'">✎</button>';
-  if(roosterData.otherLists.length) h+='<button onclick="event.stopPropagation();roosterDeleteList()" title="'+escapeHtml(tp('rooster_list_delete_tip'))+'" style="'+ib+';color:#E74C3C">\u{1F5D1}</button>';
-  h+='</div>';
-  // other lists
-  roosterData.otherLists.forEach(function(l){
-    h+='<div onclick="roosterOpenList(\''+l.id+'\')" style="display:flex;align-items:center;gap:6px;padding:10px 12px;cursor:pointer;border-top:1px solid var(--border)">';
-    h+='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="2.4" style="flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg>';
-    h+='<span style="flex:1;min-width:0;font-size:14px;font-weight:600;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escapeHtml(l.name)+'</span></div>';
+  var all=_rooAllListsSorted(); var ai=all.findIndex(function(x){return x.active;});
+  var h='';
+  all.forEach(function(l,i){
+    if(mode==='upto'?i>ai:i<=ai) return;
+    if(l.active){
+      h+='<div class="card" style="padding:0;margin-bottom:10px;overflow:hidden"><div onclick="roosterToggleBody()" style="display:flex;align-items:center;gap:6px;padding:10px 12px;cursor:pointer;background:var(--brand-light)">';
+      h+='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="2.4" style="flex-shrink:0;transition:transform .2s;transform:rotate('+(_rooBodyOpen?'180':'0')+'deg)"><polyline points="6 9 12 15 18 9"/></svg>';
+      h+='<span style="flex:1;min-width:0;font-size:14px;font-weight:800;color:var(--brand);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escapeHtml(l.name)+'</span>';
+      h+='<button onclick="event.stopPropagation();roosterToggleSettings()" title="'+escapeHtml(tp('rooster_settings_lbl'))+'" style="'+ib+(_rooSetOpen?';background:var(--brand);color:#fff':'')+'">⚙</button>';
+      h+='<button onclick="event.stopPropagation();roosterRenameList()" title="'+escapeHtml(tp('rooster_list_rename_tip'))+'" style="'+ib+'">✎</button>';
+      if(all.length>1) h+='<button onclick="event.stopPropagation();roosterDeleteList()" title="'+escapeHtml(tp('rooster_list_delete_tip'))+'" style="'+ib+';color:#E74C3C">\u{1F5D1}</button>';
+      h+='</div></div>';
+    } else {
+      h+='<div class="card" style="padding:0;margin-bottom:10px;overflow:hidden"><div onclick="roosterOpenList(\''+l.id+'\')" style="display:flex;align-items:center;gap:6px;padding:12px;cursor:pointer">';
+      h+='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="2.4" style="flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg>';
+      h+='<span style="flex:1;min-width:0;font-size:14px;font-weight:600;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escapeHtml(l.name)+'</span></div></div>';
+    }
   });
-  // new list
-  h+='<div onclick="roosterNewList()" style="display:flex;align-items:center;gap:6px;padding:9px 12px;cursor:pointer;border-top:1px solid var(--border);color:var(--text3);font-size:12px;font-weight:700">+ '+escapeHtml(tp('rooster_list_new_tip'))+'</div>';
-  h+='</div>';
+  if(mode==='rest') h+='<div class="card" style="padding:0;margin-bottom:10px;overflow:hidden"><div onclick="roosterNewList()" style="display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;cursor:pointer;color:var(--brand);font-size:13px;font-weight:700">+ '+escapeHtml(tp('rooster_list_new_tip'))+'</div></div>';
   return h;
-}
-
-// ── Import people (and optionally churches) from another saved list ──
-function roosterImportOpen(srcId){
-  var lists=roosterData.otherLists||[]; if(!lists.length) return;
-  var src=lists.find(function(l){return l.id===srcId;})||lists[0];
-  var have={}; (roosterData.sprekers||[]).forEach(function(p){have[(p.naam||'').toLowerCase()]=true;});
-  var people=(src.data.sprekers||[]).filter(function(p){return p.type!=='worker';});
-  var h='<div style="padding:16px;max-height:80vh;overflow:auto"><div style="font-size:16px;font-weight:800;margin-bottom:10px">'+escapeHtml(tp('rooster_import_title'))+'</div>';
-  h+='<select onchange="roosterImportOpen(this.value)" style="width:100%;padding:9px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface);font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px">';
-  lists.forEach(function(l){ h+='<option value="'+l.id+'"'+(l.id===src.id?' selected':'')+'>'+escapeHtml(l.name)+'</option>'; });
-  h+='</select>';
-  if(!people.length) h+='<div style="color:var(--text3);font-size:13px;padding:8px 0">'+escapeHtml(tp('rooster_import_none'))+'</div>';
-  people.forEach(function(p,i){
-    var dup=have[(p.naam||'').toLowerCase()];
-    h+='<label style="display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid var(--border);font-size:13px;'+(dup?'opacity:.5':'')+'"><input type="checkbox" data-imp="'+i+'" '+(dup?'disabled':'checked')+' style="width:16px;height:16px"><span style="flex:1">'+escapeHtml(rpName(p))+'</span>'+(dup?'<span style="font-size:11px;color:var(--text3)">'+escapeHtml(tp('rooster_import_present'))+'</span>':'')+'</label>';
-  });
-  if((src.data.kerken||[]).length) h+='<label style="display:flex;align-items:center;gap:8px;padding:10px 0 4px;font-size:12px;font-weight:600;color:var(--text2)"><input type="checkbox" id="imp-kerken" style="width:16px;height:16px">'+escapeHtml(tp('rooster_import_churches'))+'</label>';
-  h+='<div style="display:flex;gap:8px;margin-top:12px"><button onclick="roosterImportDo(\''+src.id+'\')" class="btn primary" style="flex:1">'+escapeHtml(tp('rooster_import_do'))+'</button><button onclick="closeModals()" class="btn">'+escapeHtml(tp('rooster_re_cancel'))+'</button></div></div>';
-  showModal(h);
-}
-function roosterImportDo(srcId){
-  var src=(roosterData.otherLists||[]).find(function(l){return l.id===srcId;}); if(!src) return;
-  var people=(src.data.sprekers||[]).filter(function(p){return p.type!=='worker';});
-  var n=0;
-  document.querySelectorAll('input[data-imp]').forEach(function(cb){
-    if(!cb.checked||cb.disabled) return;
-    var p=JSON.parse(JSON.stringify(people[parseInt(cb.getAttribute('data-imp'),10)]));
-    p.id='s'+Date.now()+'_'+(n++); p.beschikbaar=[]; p.onbeschikbaar=[]; p.voorkeur=[]; delete p.maxKeer;
-    roosterData.sprekers.push(p);
-  });
-  var ck=document.getElementById('imp-kerken');
-  if(ck&&ck.checked){
-    var haveK={}; roosterData.kerken.forEach(function(k){haveK[(k.naam||'').toLowerCase()]=true;});
-    (src.data.kerken||[]).forEach(function(k){ if(!haveK[(k.naam||'').toLowerCase()]){ var c=JSON.parse(JSON.stringify(k)); c.id='k'+Date.now()+'_'+(n++); roosterData.kerken.push(c); } });
-  }
-  closeModals(); saveRooster(); renderRooster();
 }
 function roosterSetOnline(on){ roosterData.online=!!on; saveRooster(); renderRooster(); }
 function roosterTogglePresencial(sab){
