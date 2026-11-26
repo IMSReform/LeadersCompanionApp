@@ -21722,7 +21722,7 @@ function renderRoosterListBar(mode){
     } else {
       h+='<div class="card" style="padding:0;margin-bottom:10px;overflow:hidden"><div onclick="roosterOpenList(\''+l.id+'\')" style="display:flex;align-items:center;gap:6px;padding:12px;cursor:pointer">';
       h+='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="2.4" style="flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg>';
-      h+='<span style="flex:1;min-width:0;font-size:14px;font-weight:600;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escapeHtml(l.name)+'</span></div></div>';
+      h+='<span style="flex:1;min-width:0;font-size:14px;font-weight:700;color:var(--brand);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escapeHtml(l.name)+'</span></div></div>';
     }
   });
   if(mode==='rest') h+='<div class="card" style="padding:0;margin-bottom:10px;overflow:hidden"><div onclick="roosterNewList()" style="display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;cursor:pointer;color:var(--brand);font-size:13px;font-weight:700">+ '+escapeHtml(tp('rooster_list_new_tip'))+'</div></div>';
