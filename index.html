@@ -18759,7 +18759,7 @@ var PRES_STRINGS = {
     rooster_pause_btn: 'Pauzeer', rooster_resume_btn: 'Hervat',
     rooster_availability_title: 'BESCHIKBAARHEID — tik om te wisselen', rooster_set_period_first: 'Stel eerst een periode in bij het Rooster tabblad.',
     rooster_auto_absent_tooltip: 'Afwezigheid doorgegeven door werker — tik om te overschrijven',
-    rooster_mark_all_avail: 'Alle data als beschikbaar markeren', rooster_available_lbl: '✓ Beschikbaar',rooster_unavailable_lbl: '✗ Niet beschikbaar', rooster_auto_absent_lbl: '⋯ Afwezig (doorgegeven)', rooster_unknown_lbl: 'Onbekend',
+    rooster_mark_all_avail: 'Alle data als beschikbaar markeren', rooster_mark_all_unavail: 'Alle data als niet beschikbaar markeren', rooster_available_lbl: '✓ Beschikbaar',rooster_unavailable_lbl: '✗ Niet beschikbaar', rooster_auto_absent_lbl: '⋯ Afwezig (doorgegeven)', rooster_unknown_lbl: 'Onbekend',
     rooster_pref_church_title: 'VOORKEUR GEMEENTE', rooster_pref_explain: '★ = voorkeur → auto-genereer plant deze verantwoordelijke bij voorkeur in voor die gemeente',
     rooster_add_speaker_title: '+ Verantwoordelijke toevoegen', rooster_full_name_ph: 'Volledige naam', rooster_opt_member: 'Lid', rooster_opt_elder: 'Oudste', rooster_opt_child: 'Kind', rooster_opt_youth: 'Jeugd', rooster_opt_visitor: 'Bezoeker', rooster_add_btn: '+ Toevoegen',
     rooster_load_error: 'Fout bij laden: ', rooster_delete_speaker_confirm: 'Verantwoordelijke verwijderen?',
@@ -18941,7 +18941,7 @@ var PRES_STRINGS = {
     rooster_pause_btn: 'Pause', rooster_resume_btn: 'Resume',
     rooster_availability_title: 'AVAILABILITY — tap to toggle', rooster_set_period_first: 'Set a period first on the Schedule tab.',
     rooster_auto_absent_tooltip: 'Absence reported by the worker — tap to override',
-    rooster_mark_all_avail: 'Mark all dates as available', rooster_available_lbl: '✓ Available',rooster_unavailable_lbl: '✗ Not available', rooster_auto_absent_lbl: '⋯ Absent (reported)', rooster_unknown_lbl: 'Unknown',
+    rooster_mark_all_avail: 'Mark all dates as available', rooster_mark_all_unavail: 'Mark all dates as unavailable', rooster_available_lbl: '✓ Available',rooster_unavailable_lbl: '✗ Not available', rooster_auto_absent_lbl: '⋯ Absent (reported)', rooster_unknown_lbl: 'Unknown',
     rooster_pref_church_title: 'PREFERRED CHURCH', rooster_pref_explain: '★ = preference → auto-generate prioritizes this person for that church',
     rooster_add_speaker_title: '+ Add responsible person', rooster_full_name_ph: 'Full name', rooster_opt_member: 'Member', rooster_opt_elder: 'Elder', rooster_opt_child: 'Child', rooster_opt_youth: 'Youth', rooster_opt_visitor: 'Visitor', rooster_add_btn: '+ Add',
     rooster_load_error: 'Error loading: ', rooster_delete_speaker_confirm: 'Delete responsible person?',
@@ -19238,7 +19238,7 @@ var PRES_STRINGS = {
     rooster_pause_btn: 'Pausar', rooster_resume_btn: 'Reanudar',
     rooster_availability_title: 'DISPONIBILIDAD — toca para cambiar', rooster_set_period_first: 'Primero establece un período en la pestaña Programación.',
     rooster_auto_absent_tooltip: 'Ausencia informada por el trabajador — toca para anular',
-    rooster_mark_all_avail: 'Marcar todas las fechas como disponibles', rooster_available_lbl: '✓ Disponible', rooster_unavailable_lbl: '✗ No disponible', rooster_auto_absent_lbl: '⋯ Ausente (informado)', rooster_unknown_lbl: 'Desconocido',
+    rooster_mark_all_avail: 'Marcar todas las fechas como disponibles', rooster_mark_all_unavail: 'Marcar todas las fechas como no disponibles', rooster_available_lbl: '✓ Disponible', rooster_unavailable_lbl: '✗ No disponible', rooster_auto_absent_lbl: '⋯ Ausente (informado)', rooster_unknown_lbl: 'Desconocido',
     rooster_pref_church_title: 'IGLESIA PREFERIDA', rooster_pref_explain: '★ = preferencia → la generación automática prioriza a este responsable para esa iglesia',
     rooster_add_speaker_title: '+ Añadir responsable', rooster_full_name_ph: 'Nombre completo', rooster_opt_member: 'Miembro', rooster_opt_elder: 'Anciano', rooster_opt_child: 'Niño', rooster_opt_youth: 'Joven', rooster_opt_visitor: 'Visitante', rooster_add_btn: '+ Añadir',
     rooster_load_error: 'Error al cargar: ', rooster_delete_speaker_confirm: '¿Eliminar responsable?',
@@ -21426,8 +21426,13 @@ function renderRoosterSprekers(){
         h += '<div style="font-size:12px;color:var(--text3);background:var(--surface);border-radius:8px;padding:10px 12px">'+tp('rooster_set_period_first')+'</div>';
       } else {
         var allAv = sabbaths.every(function(d){ return s.beschikbaar.indexOf(d)>=0; });
-        h += '<label style="display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:8px;cursor:pointer">';
+        var allNo = sabbaths.every(function(d){ return s.onbeschikbaar.indexOf(d)>=0; });
+        h += '<div style="display:flex;flex-wrap:wrap;gap:6px 16px;margin-bottom:8px">';
+        h += '<label style="display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:var(--text2);cursor:pointer">';
         h += '<input type="checkbox" '+(allAv?'checked ':'')+'onchange="toggleSprekAlleBeschikbaar('+i+',this.checked)" style="width:16px;height:16px;accent-color:#83A371;cursor:pointer">'+tp('rooster_mark_all_avail')+'</label>';
+        h += '<label style="display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:var(--text2);cursor:pointer">';
+        h += '<input type="checkbox" '+(allNo?'checked ':'')+'onchange="toggleSprekAlleOnbeschikbaar('+i+',this.checked)" style="width:16px;height:16px;accent-color:#E74C3C;cursor:pointer">'+tp('rooster_mark_all_unavail')+'</label>';
+        h += '</div>';
         h += '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px">';
         sabbaths.forEach(function(sab){
           var dp=sab.split('-');
@@ -21544,6 +21549,20 @@ function toggleSprekAlleBeschikbaar(spIdx, on){
     s.onbeschikbaar = s.onbeschikbaar.filter(function(d){ return sabs.indexOf(d)<0; });
   } else {
     s.beschikbaar = s.beschikbaar.filter(function(d){ return sabs.indexOf(d)<0; });
+  }
+  saveRooster(); renderRooster();
+}
+
+function toggleSprekAlleOnbeschikbaar(spIdx, on){
+  var s=roosterData.sprekers[spIdx]; if(!s) return;
+  var sabs = getRoosterSabbaths();
+  if(!s.beschikbaar)   s.beschikbaar=[];
+  if(!s.onbeschikbaar) s.onbeschikbaar=[];
+  if(on){
+    sabs.forEach(function(d){ if(s.onbeschikbaar.indexOf(d)<0) s.onbeschikbaar.push(d); });
+    s.beschikbaar = s.beschikbaar.filter(function(d){ return sabs.indexOf(d)<0; });
+  } else {
+    s.onbeschikbaar = s.onbeschikbaar.filter(function(d){ return sabs.indexOf(d)<0; });
   }
   saveRooster(); renderRooster();
 }
