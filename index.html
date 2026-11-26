@@ -21663,7 +21663,8 @@ function roosterBoxDragStart(ev){
 }
 function roosterBoxReset(){ _rooBoxH=null; try{ localStorage.removeItem('_zdapres_rooster_boxh'); }catch(e){} renderRooster(); }
 var _rooYear=false;
-function roosterSetYear(on){ _rooYear=!!on; renderRooster(); }
+try{ _rooYear=localStorage.getItem('_zdapres_rooster_year')==='1'; }catch(e){}
+function roosterSetYear(on){ _rooYear=!!on; try{ localStorage.setItem('_zdapres_rooster_year',_rooYear?'1':'0'); }catch(e){} renderRooster(); }
 function renderRoosterYear(sabbaths){
   if(!sabbaths.length) return '';
   var loc=(typeof LANG==='string'&&LANG)?LANG:'nl';
