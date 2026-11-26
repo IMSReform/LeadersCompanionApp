@@ -22926,7 +22926,7 @@ function roosterExport(){
   // image per language. 8pt keeps it proportioned for this PDF's smaller A5
   // page (the GC export's A4 page uses 11pt).
   // Own block with clearance below, so the isotope can never run into the table header.
-  w.document.write('<div style="display:block;overflow:hidden;margin-bottom:5mm;padding-bottom:1mm;break-after:avoid;page-break-after:avoid">'+orgHeaderHtml(8)+'</div>');
+  w.document.write('<div style="display:block;overflow:visible;padding-top:6mm;margin-bottom:6mm;break-after:avoid;page-break-after:avoid">'+orgHeaderHtml(8)+'</div>');
   var _pdfTitle=(roosterData.pdfTitle&&roosterData.pdfTitle.trim())||((roosterData.purpose||'prediking')==='prediking'?tp('rooster_pdf_title'):roosterPurposeLabel());
   var _pdfPeriod=sabbaths.length?(MAANDEN[parseInt(sabbaths[0].split('-')[1])-1]+' '+sabbaths[0].split('-')[0]+' \u2013 '+MAANDEN[parseInt(sabbaths[sabbaths.length-1].split('-')[1])-1]+' '+sabbaths[sabbaths.length-1].split('-')[0]):'';
   w.document.write('<div class="pdf-title">'+escapeHtml(_pdfTitle)+(_pdfPeriod?'<span>'+_pdfPeriod+'</span>':'')+'</div>');
