@@ -23137,7 +23137,7 @@ function roosterExport(){
     // get the bordered/filled treatment.
     +'.rooster-tbl thead th.rlabel{border:none;background:transparent;color:#1a2733}'
     +'.rooster-tbl tbody tr.alt{background:#F7F9FB}'
-    +'.rooster-tbl.vert th.wk{width:16mm}.rooster-tbl.vert th.mo{width:9mm}.rooster-tbl.vert tr{page-break-inside:avoid}.rooster-tbl.vert td.wkn{text-align:center;font-weight:400;color:#888}'
+    +'.rooster-tbl.vert th.wk{width:16mm}.rooster-tbl.vert th.mo{width:9mm}.rooster-tbl tr{page-break-inside:avoid;break-inside:avoid}.rooster-tbl.vert td.wkn{text-align:center;font-weight:400;color:#888}'
     +'.rooster-tbl .thema{font-size:7.5px;color:#888}'
     +'.footnotes{margin-top:2mm;font-size:7px;color:#555;line-height:1.4}'
     +'.footnotes div{margin-bottom:1px}'
@@ -23158,7 +23158,7 @@ function roosterExport(){
   // image per language. 8pt keeps it proportioned for this PDF's smaller A5
   // page (the GC export's A4 page uses 11pt).
   // Own block with clearance below, so the isotope can never run into the table header.
-  w.document.write('<table class="pg"><thead><tr><td><div style="height:9mm"></div></td></tr></thead><tfoot><tr><td><div style="height:9mm"></div></td></tr></tfoot><tbody><tr><td>');
+  w.document.write('<table class="pg"><thead><tr><td><div style="height:14mm"></div></td></tr></thead><tfoot><tr><td><div style="height:14mm"></div></td></tr></tfoot><tbody><tr><td>');
   w.document.write('<div style="display:block;overflow:visible;padding-top:10mm;margin-bottom:6mm;break-after:avoid;page-break-after:avoid">'+orgHeaderHtml(8)+'</div>');
   var _pdfTitle=(roosterData.pdfTitle&&roosterData.pdfTitle.trim())||((roosterData.purpose||'prediking')==='prediking'?tp('rooster_pdf_title'):roosterPurposeLabel());
   var _pdfPeriod=sabbaths.length?(MAANDEN[parseInt(sabbaths[0].split('-')[1])-1]+' '+sabbaths[0].split('-')[0]+' \u2013 '+MAANDEN[parseInt(sabbaths[sabbaths.length-1].split('-')[1])-1]+' '+sabbaths[sabbaths.length-1].split('-')[0]):'';
