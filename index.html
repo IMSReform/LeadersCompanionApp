@@ -21664,23 +21664,31 @@ function renderRoosterMain(){
   }
 
   h+='<div class="card" style="padding:12px 14px;margin-bottom:10px">';
-  h+='<div style="display:flex;gap:6px;margin-bottom:6px">';
-  h+='<button onclick="roosterAutoGenereer()" style="flex:2;padding:11px;border-radius:10px;background:linear-gradient(135deg, var(--brand-dark) 0%, var(--brand) 55%, var(--brand-mid) 100%);color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer">'+tp('rooster_generate_btn')+'</button>';
-  h+='<button onclick="roosterReset()" style="flex:1;padding:11px;border-radius:10px;background:var(--surface);color:#E74C3C;border:1.5px solid #E74C3C;font-size:12px;font-weight:700;cursor:pointer">'+tp('rooster_reset_btn')+'</button>';
-  h+='<button onclick="roosterExport()" style="flex:1;padding:11px;border-radius:10px;background:var(--surface);color:var(--brand);border:1.5px solid var(--brand);font-size:12px;font-weight:700;cursor:pointer">'+tp('rooster_pdf_btn')+'</button>';
-  h+='</div>';
-  h+='<div style="display:flex;gap:6px;margin-bottom:8px">';
-  h+='<button onclick="roosterClearProgram()" style="flex:1;padding:8px;border-radius:10px;background:var(--surface);color:#E74C3C;border:1px solid #E74C3C;font-size:11px;font-weight:700;cursor:pointer">🗑 '+tp('rooster_clear_prog_btn')+'</button>';
-  h+='<button onclick="roosterClearAllData()" style="flex:1;padding:8px;border-radius:10px;background:var(--surface);color:#E74C3C;border:1px solid #E74C3C;font-size:11px;font-weight:700;cursor:pointer">🗑 '+tp('rooster_clear_data_btn')+'</button>';
-  h+='</div>';
   var _vOr=(roosterData.dateOrient==='v');
-  h+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px"><span style="font-size:11px;font-weight:700;color:var(--text3);margin-right:2px">'+tp('rooster_orient_lbl')+'</span>';
-  h+='<button onclick="roosterSetOrient(\'h\')" style="flex:1;padding:8px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid '+(_vOr?'var(--border)':'var(--brand)')+';background:'+(_vOr?'var(--surface)':'var(--brand-light)')+';color:'+(_vOr?'var(--text2)':'var(--brand)')+'">\u21C4 '+tp('rooster_orient_h')+'</button>';
-  h+='<button onclick="roosterSetOrient(\'v\')" style="flex:1;padding:8px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid '+(_vOr?'var(--brand)':'var(--border)')+';background:'+(_vOr?'var(--brand-light)':'var(--surface)')+';color:'+(_vOr?'var(--brand)':'var(--text2)')+'">\u21C5 '+tp('rooster_orient_v')+'</button>';
+  var _ib='padding:6px 10px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;line-height:1';
+  var _seg=function(on){return 'padding:6px 11px;border:none;font-size:12px;font-weight:700;cursor:pointer;line-height:1;background:'+(on?'var(--brand-light)':'transparent')+';color:'+(on?'var(--brand)':'var(--text3)');};
+  var _mi='display:block;width:100%;text-align:left;padding:9px 12px;background:none;border:none;border-top:1px solid var(--border);font-size:12px;font-weight:600;color:var(--text2);cursor:pointer';
+  // Primary actions
+  h+='<div style="display:flex;gap:8px;margin-bottom:10px">';
+  h+='<button onclick="roosterAutoGenereer()" style="flex:1;padding:10px;border-radius:10px;background:var(--brand);color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer">'+tp('rooster_generate_btn')+'</button>';
+  h+='<button onclick="roosterExport()" style="'+_ib+';padding:10px 16px;color:var(--brand);border-color:var(--brand)">'+tp('rooster_pdf_btn')+'</button>';
   h+='</div>';
-  h+='<div style="display:flex;gap:6px;margin-bottom:8px">';
-  h+='<button id="rooster-undo-btn" onclick="roosterUndo()" title="'+tp('rooster_undo_lbl')+'" style="flex:1;padding:8px;border-radius:10px;background:var(--surface);color:var(--text2);border:1.5px solid var(--border);font-size:14px;font-weight:700;cursor:pointer;opacity:'+(roosterUndoStack.length?'1':'.4')+'" '+(roosterUndoStack.length?'':'disabled')+'>↺ '+tp('rooster_undo_lbl')+'</button>';
-  h+='<button id="rooster-redo-btn" onclick="roosterRedo()" title="'+tp('rooster_redo_lbl')+'" style="flex:1;padding:8px;border-radius:10px;background:var(--surface);color:var(--text2);border:1.5px solid var(--border);font-size:14px;font-weight:700;cursor:pointer;opacity:'+(roosterRedoStack.length?'1':'.4')+'" '+(roosterRedoStack.length?'':'disabled')+'>↻ '+tp('rooster_redo_lbl')+'</button>';
+  // Compact toolbar: orientation | undo / redo | more
+  h+='<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px">';
+  h+='<div title="'+tp('rooster_orient_lbl')+'" style="display:inline-flex;border:1px solid var(--border);border-radius:8px;overflow:hidden">';
+  h+='<button onclick="roosterSetOrient(\'h\')" style="'+_seg(!_vOr)+'">⇄ '+tp('rooster_orient_h')+'</button>';
+  h+='<button onclick="roosterSetOrient(\'v\')" style="'+_seg(_vOr)+';border-left:1px solid var(--border)">⇅ '+tp('rooster_orient_v')+'</button>';
+  h+='</div>';
+  h+='<div style="display:flex;gap:6px">';
+  h+='<button id="rooster-undo-btn" onclick="roosterUndo()" title="'+tp('rooster_undo_lbl')+'" style="'+_ib+';font-size:15px;opacity:'+(roosterUndoStack.length?'1':'.35')+'" '+(roosterUndoStack.length?'':'disabled')+'>↺</button>';
+  h+='<button id="rooster-redo-btn" onclick="roosterRedo()" title="'+tp('rooster_redo_lbl')+'" style="'+_ib+';font-size:15px;opacity:'+(roosterRedoStack.length?'1':'.35')+'" '+(roosterRedoStack.length?'':'disabled')+'>↻</button>';
+  h+='<button onclick="var m=document.getElementById(\'rooster-more\');m.style.display=m.style.display===\'none\'?\'block\':\'none\'" title="…" style="'+_ib+';font-size:15px;letter-spacing:1px">⋯</button>';
+  h+='</div></div>';
+  // Less-used / destructive actions tucked into a small menu
+  h+='<div id="rooster-more" style="display:none;margin-bottom:8px;border:1px solid var(--border);border-radius:8px;overflow:hidden;background:var(--surface)">';
+  h+='<button onclick="roosterReset()" style="'+_mi+';border-top:none">'+tp('rooster_reset_btn')+'</button>';
+  h+='<button onclick="roosterClearProgram()" style="'+_mi+';color:#E74C3C">'+tp('rooster_clear_prog_btn')+'</button>';
+  h+='<button onclick="roosterClearAllData()" style="'+_mi+';color:#E74C3C">'+tp('rooster_clear_data_btn')+'</button>';
   h+='</div>';
   // History-optie — zodra aangevinkt houdt Genereer rooster rekening met wie
   // de vorige Sabbath (in de vorige periode) al bij elke gemeente stond, zodat
