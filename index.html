@@ -21707,9 +21707,9 @@ function renderRoosterMain(){
   h+='</div>';
 
   // ── SPEAKER POOL ──
-  h+='<div class="card" style="padding:10px 14px;margin-bottom:8px">';
-  h+='<div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.05em;margin-bottom:6px">'+tp('rooster_speaker_pool_lbl')+'</div>';
-  h+='<div id="speaker-pool" style="display:flex;flex-wrap:wrap;gap:5px;min-height:28px;padding:4px;border-radius:8px;border:1.5px dashed var(--border)" ondragover="event.preventDefault()" ondrop="poolDrop(event)">';
+  h+='<div class="card" style="padding:8px 12px;margin-bottom:8px;position:sticky;top:0;z-index:20;background:var(--surface)">';
+  h+='<div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.05em;margin-bottom:4px">'+tp('rooster_speaker_pool_lbl')+'</div>';
+  h+='<div id="speaker-pool" style="display:flex;flex-wrap:wrap;gap:5px;min-height:28px;max-height:92px;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:4px;border-radius:8px;border:1.5px dashed var(--border)" ondragover="event.preventDefault()" ondrop="poolDrop(event)">';
   sprekers.forEach(function(s){
     var sActief=s.actief!==false;
     h+='<div draggable="true" data-speakerid="'+s.id+'" ondragstart="dragSpeaker(event)" ';
