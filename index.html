@@ -21280,16 +21280,14 @@ function renderRooster(){
   // beschikbaarheid grid both key off it), not something scoped to just the
   // Rooster tab. Rendered once here regardless of which tab is active.
   var _setPer=renderRoosterPeriodeCard();
-  // Purpose + period inside one collapsible accordion (state remembered).
-  (function(){
+  // Purpose + period: hidden until opened with + (new list) or the gear button.
+  if(_rooSetOpen) (function(){
     var pr=roosterData.periode||{}; var sum=roosterPurposeLabel()+(pr.start&&pr.end?' · '+pr.start+' \u2192 '+pr.end:'');
-    h+='<div class="card" style="padding:0;margin-bottom:10px;overflow:hidden;background:transparent;box-shadow:none;border:none">';
-    h+='<div onclick="roosterToggleSettings()" class="card" style="display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer;margin-bottom:'+(_rooSetOpen?'8px':'0')+'">';
+    h+='<div onclick="roosterToggleSettings()" class="card" style="display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer;margin-bottom:8px">';
     h+='<span style="font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.05em">'+escapeHtml(tp('rooster_settings_lbl')).toUpperCase()+'</span>';
     h+='<span style="flex:1;min-width:0;font-size:12px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escapeHtml(sum)+'</span>';
-    h+='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="2" style="transition:transform .2s;transform:rotate('+(_rooSetOpen?'180':'0')+'deg)"><polyline points="6 9 12 15 18 9"/></svg></div>';
-    if(_rooSetOpen) h+=_setP+_setPer;
-    h+='</div>';
+    h+='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="2" style="transform:rotate(180deg)"><polyline points="6 9 12 15 18 9"/></svg></div>';
+    h+=_setP+_setPer;
   })();
 
   // Tab bar — Gemeenten genericizes to Locaties when this rooster isn't
@@ -21664,7 +21662,7 @@ function roosterNewList(){
     fresh.sprekers=_rooClone(roosterData.sprekers||[]).map(function(s){ s.beschikbaar=[]; s.onbeschikbaar=[]; s.presencialOK=s.presencialOK; return s; });
   }
   fresh.listId='l'+Date.now()+Math.random().toString(36).slice(2,6); fresh.listName=name.trim(); fresh.otherLists=others;
-  roosterData=fresh; _rooResetUi(); saveRooster(); renderRooster();
+  roosterData=fresh; _rooResetUi(); _rooSetOpen=true; saveRooster(); renderRooster();
 }
 function roosterSwitchList(id){
   if(!id||id===roosterData.listId) return;
@@ -21690,9 +21688,8 @@ function roosterDeleteList(){
   if(!nd.gesloten)nd.gesloten=[]; if(!nd.voetnoten)nd.voetnoten=[]; if(!nd.geschiedenis)nd.geschiedenis={};
   roosterData=nd; _rooResetUi(); saveRooster(); renderRooster();
 }
-var _rooSetOpen=true;
-try{ var _sso=localStorage.getItem('_zdapres_rooster_setopen'); if(_sso!==null) _rooSetOpen=_sso==='1'; }catch(e){}
-function roosterToggleSettings(){ _rooSetOpen=!_rooSetOpen; try{ localStorage.setItem('_zdapres_rooster_setopen',_rooSetOpen?'1':'0'); }catch(e){} renderRooster(); }
+var _rooSetOpen=false; // Settings (purpose + period) only show after tapping + (new list) or the gear
+function roosterToggleSettings(){ _rooSetOpen=!_rooSetOpen; renderRooster(); }
 var _rooListOpen=false;
 function roosterToggleListBar(){ _rooListOpen=!_rooListOpen; renderRooster(); }
 function renderRoosterListBar(){
@@ -21710,6 +21707,7 @@ function renderRoosterListBar(){
     h+='<option value="'+roosterData.listId+'" selected>'+escapeHtml(roosterData.listName)+'</option>';
     roosterData.otherLists.forEach(function(l){ h+='<option value="'+l.id+'">'+escapeHtml(l.name)+'</option>'; });
     h+='</select>';
+    h+='<button onclick="roosterToggleSettings()" title="'+escapeHtml(tp('rooster_settings_lbl'))+'" style="'+bs+(_rooSetOpen?';background:var(--brand-light);color:var(--brand)':'')+'">\u2699</button>';
     h+='<button onclick="roosterNewList()" title="'+escapeHtml(tp('rooster_list_new_tip'))+'" style="'+bs+'">+</button>';
     h+='<button onclick="roosterRenameList()" title="'+escapeHtml(tp('rooster_list_rename_tip'))+'" style="'+bs+'">✎</button>';
     if(roosterData.otherLists.length) h+='<button onclick="roosterDeleteList()" title="'+escapeHtml(tp('rooster_list_delete_tip'))+'" style="'+bs+';color:#E74C3C">\u{1F5D1}</button>';
