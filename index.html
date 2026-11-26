@@ -21694,7 +21694,7 @@ function roosterOpenList(id){ _rooBodyOpen=true; try{ localStorage.setItem('_zda
 // Rooster (tap to collapse); tapping another list switches to it.
 function renderRoosterListBar(){
   _rooEnsureList();
-  var ib='padding:5px 8px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-size:13px;font-weight:700;cursor:pointer;line-height:1;flex-shrink:0';
+  var ib='padding:6px 11px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-size:20px;font-weight:700;cursor:pointer;line-height:1;flex-shrink:0;min-width:42px;min-height:38px';
   var h='<div class="card" style="padding:0;margin-bottom:10px;overflow:hidden">';
   // active list row
   h+='<div onclick="roosterToggleBody()" style="display:flex;align-items:center;gap:6px;padding:10px 12px;cursor:pointer;background:var(--brand-light)">';
