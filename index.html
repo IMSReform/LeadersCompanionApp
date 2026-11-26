@@ -11742,7 +11742,7 @@ function renderWorkersList(){
     g.items.forEach(function(item,rowIdx){
       var wn=item.wn, w=workers[wn], wc=getWorkerColor(item.idx);
       var nEntries=(w.entries||[]).length; var nCursisten=(w.cursisten||[]).length;
-      var importDate=w.importDate?new Date(w.importDate).toLocaleDateString('nl-NL'):'?';
+      var importDate=w.importDate?new Date(w.importDate).toLocaleDateString(_locFor()):'?';
       // #1218: a Sub-unit row has no entries/cursisten of its own - show the
       // count of stats it reported instead of a misleading "0 activities".
       var subUnitStatCount=w.isSubUnit?Object.keys((w.aggregate&&w.aggregate.counts)||{}).length:0;
@@ -12856,7 +12856,7 @@ function renderWorkerPanelInto(wn, targetEl){
       // longer month names and made the number look small/buried either way.
       var dayNumStr=String(d.getDate());
       var monthStr=MAANDEN_LANG[d.getMonth()+1];
-      var weekday=d.toLocaleDateString(LANG==='es'?'es-ES':'nl-NL',{weekday:'long'});
+      var weekday=d.toLocaleDateString(_locFor(),{weekday:'long'});
       // The card above now has zero horizontal padding, so every row
       // supplies its own instead - this base padding applies to Sabbath
       // and regular rows alike, keeping date/text aligned as before.
@@ -14658,13 +14658,13 @@ function openCursistByNaam(naam){
 }
 
 // ── HEADER CLOCK ──
+function _locFor(){ return (!LANG||LANG==='nl')?'nl-NL':LANG; }
 function updateHeaderDate(){
   var el=document.getElementById('g-date');
   if(!el) return;
   var now=new Date();
-  var days=['zo','ma','di','wo','do','vr','za'];
-  var months=['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'];
-  el.textContent=days[now.getDay()]+' '+now.getDate()+' '+months[now.getMonth()]+' '+now.getFullYear();
+  try{ el.textContent=now.toLocaleDateString(_locFor(),{weekday:'short',day:'numeric',month:'short',year:'numeric'}).replace(/[.,]/g,''); }
+  catch(e){ el.textContent=now.toDateString(); }
   updateHeaderGreeting();
 }
 // Gabriel: "the voorzitter in the header should be like the workers app..
@@ -17621,7 +17621,7 @@ function fcSelectDay(ds){
 }
 function renderFcDayDetail(ds){
   var d=new Date(ds+'T00:00:00');
-  var wday=d.toLocaleDateString(LANG==='es'?'es-ES':'nl-NL',{weekday:'long'});
+  var wday=d.toLocaleDateString(_locFor(),{weekday:'long'});
   var ML=getMaandenLang(true)||getMaandenLang();
   var items=fcFilteredVakantieData().filter(function(v){return v.start<=ds&&v.end>=ds;});
   var gpItems=gemeentePlanningForDay(ds);
@@ -17678,7 +17678,7 @@ function renderFullCalWeek(){
     var gpItems=gemeentePlanningForDay(ds);
     if(!items.length&&!gpItems.length)return;
     any=true;
-    var wdayLong=d.toLocaleDateString(LANG==='es'?'es-ES':'nl-NL',{weekday:'long'});
+    var wdayLong=d.toLocaleDateString(_locFor(),{weekday:'long'});
     h+='<div style="padding:12px 2px 4px;font-size:12px;font-weight:700;color:var(--text3);text-transform:capitalize">'+wdayLong+', '+d.getDate()+' '+ML[d.getMonth()]+'</div>';
     items.forEach(function(v){
       h+='<div onclick="fcOpenYearDayPopup(\''+ds+'\',this)" style="display:flex;align-items:center;gap:8px;padding:7px 4px;border-bottom:1px solid var(--border);cursor:pointer">';
@@ -17793,7 +17793,7 @@ function fcOpenYearDayPopup(ds,anchorEl){
   closeFcYdPopup();
   var d=new Date(ds+'T00:00:00');
   var ML=getMaandenLang(true)||getMaandenLang();
-  var wday=d.toLocaleDateString(LANG==='es'?'es-ES':'nl-NL',{weekday:'long'});
+  var wday=d.toLocaleDateString(_locFor(),{weekday:'long'});
   var items=fcFilteredVakantieData().filter(function(v){return v.start<=ds&&v.end>=ds;});
   var gpItems=gemeentePlanningForDay(ds);
 
@@ -19891,6 +19891,7 @@ function tprep(key,repl){
 
 // Apply translations to all [data-tp] elements in the DOM
 function applyPresTranslations(){
+  try{ updateHeaderDate(); }catch(e){}
   document.querySelectorAll('[data-tp]').forEach(function(el){
     var key=el.getAttribute('data-tp');
     el.textContent=tp(key);
