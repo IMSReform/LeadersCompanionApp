@@ -21519,6 +21519,110 @@ function renderRoosterSprekers(){
   }
 }
 
+
+// ── Review: checks a finished schedule and lists problems + suggestions ──
+function roosterReview(){
+  var T=function(nl,en,es){ return tMap({nl:nl,en:en,es:es}); };
+  var sabs=getRoosterSabbaths();
+  if(!sabs.length||!roosterData.rooster.length){ alert(T('Er is nog geen rooster om te controleren.','There is no schedule to review yet.','Todavía no hay programa para revisar.')); return; }
+  var sp=roosterData.sprekers.filter(function(s){return s.actief!==false;});
+  var byId={}; roosterData.sprekers.forEach(function(s){byId[s.id]=s;});
+  var nm=function(id){ return byId[id]?rpName(byId[id]):'?'; };
+  var MN=['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'];
+  var dl=function(sab){ var p=sab.split('-'); return parseInt(p[2])+' '+MN[parseInt(p[1])-1]; };
+  var kn=function(id){ var k=roosterData.kerken.find(function(x){return x.id===id;}); return k?k.naam:''; };
+  var inSab={}; sabs.forEach(function(d){inSab[d]=true;});
+  var rows=roosterData.rooster.filter(function(r){return inSab[r.sabbath]&&r.sprekerId;});
+  var count={}; sp.forEach(function(s){count[s.id]=0;});
+  rows.forEach(function(r){count[r.sprekerId]=(count[r.sprekerId]||0)+1;});
+  var online=!!roosterData.online, isP=function(d){return online&&_rooPres(d);};
+  var alt=function(r,excl){
+    var planned=rows.filter(function(x){return x.sabbath===r.sabbath;}).map(function(x){return x.sprekerId;});
+    var c=sp.filter(function(s){
+      return s.id!==excl && planned.indexOf(s.id)<0 && !rpSprekerEffectiefOnbeschikbaar(s,r.sabbath)
+        && (!s.maxKeer||(count[s.id]||0)<s.maxKeer) && (!isP(r.sabbath)||s.presencialOK);
+    }).sort(function(a,b){return (count[a.id]||0)-(count[b.id]||0);}).slice(0,3);
+    return c.length?(' → '+T('Alternatief','Alternatives','Alternativas')+': '+c.map(function(s){return rpName(s)+' ('+(count[s.id]||0)+'×)';}).join(', ')):'';
+  };
+  var sections=[];
+  var add=function(title,items){ if(items.length) sections.push({t:title,i:items}); };
+  var idx={}; sabs.forEach(function(d,i){idx[d]=i;});
+
+  // 1 consecutive Sabbaths
+  var it=[]; var seen={};
+  rows.forEach(function(r){
+    var nxt=rows.find(function(x){return x.sprekerId===r.sprekerId&&idx[x.sabbath]===idx[r.sabbath]+1;});
+    if(nxt) it.push(nm(r.sprekerId)+': '+dl(r.sabbath)+' + '+dl(nxt.sabbath)+alt(nxt,r.sprekerId));
+  });
+  add(T('Opeenvolgende sabbatten','Back-to-back Sabbaths','Sábados seguidos'),it);
+
+  // 2 same person twice the same Sabbath
+  it=[]; sabs.forEach(function(d){
+    var c={}; rows.filter(function(r){return r.sabbath===d;}).forEach(function(r){c[r.sprekerId]=(c[r.sprekerId]||0)+1;});
+    Object.keys(c).forEach(function(id){ if(c[id]>1) it.push(nm(id)+': '+dl(d)+' ('+c[id]+'×)'); });
+  });
+  add(T('Dubbel op dezelfde sabbat','Double-booked on the same Sabbath','Doble el mismo sábado'),it);
+
+  // 3 same church repeated within 3 Sabbaths
+  it=[]; rows.forEach(function(r){
+    var nxt=rows.find(function(x){return x.sprekerId===r.sprekerId&&x.kerkId===r.kerkId&&idx[x.sabbath]>idx[r.sabbath]&&idx[x.sabbath]-idx[r.sabbath]<=3&&idx[x.sabbath]-idx[r.sabbath]!==1;});
+    if(nxt) it.push(nm(r.sprekerId)+' @ '+kn(r.kerkId)+': '+dl(r.sabbath)+' + '+dl(nxt.sabbath)+alt(nxt,r.sprekerId));
+  });
+  add(T('Zelfde gemeente kort na elkaar','Same church again too soon','Misma iglesia muy seguido'),it);
+
+  // 4 unbalanced
+  var tot=sp.reduce(function(a,s){return a+(count[s.id]||0);},0), avg=sp.length?tot/sp.length:0;
+  it=[]; sp.forEach(function(s){
+    var c=count[s.id]||0;
+    if(c>Math.ceil(avg)+1) it.push(nm(s.id)+': '+c+'× ('+T('gemiddeld','average','promedio')+' '+avg.toFixed(1)+') — '+T('veel','a lot','muchas veces'));
+    else if(c<Math.floor(avg)-1&&!s.maxKeer) it.push(nm(s.id)+': '+c+'× ('+T('gemiddeld','average','promedio')+' '+avg.toFixed(1)+') — '+T('weinig','few','pocas veces'));
+  });
+  add(T('Ongelijke verdeling','Uneven distribution','Reparto desigual'),it);
+
+  // 5 unavailable
+  it=[]; rows.forEach(function(r){ var s=byId[r.sprekerId]; if(s&&rpSprekerEffectiefOnbeschikbaar(s,r.sabbath)) it.push(nm(r.sprekerId)+': '+dl(r.sabbath)+' '+kn(r.kerkId)+alt(r,r.sprekerId)); });
+  add(T('Ingepland op niet-beschikbare datum','Scheduled on an unavailable date','Asignado en fecha no disponible'),it);
+
+  // 6 over max
+  it=[]; sp.forEach(function(s){ if(s.maxKeer&&(count[s.id]||0)>s.maxKeer) it.push(nm(s.id)+': '+count[s.id]+'× > max '+s.maxKeer); });
+  add(T('Meer dan het maximum','Over the maximum','Más del máximo'),it);
+
+  // 7 empty slots
+  it=[]; sabs.forEach(function(d){
+    roosterData.kerken.forEach(function(k){
+      if(roosterIsGesloten(d,k.id)) return;
+      for(var n=1;n<=(k.frequentie||1);n++){
+        var e=roosterData.rooster.find(function(r){return r.sabbath===d&&r.kerkId===k.id&&(r.dienst||1)===n;});
+        if(!e||(!e.sprekerId&&!e.customLabel)) it.push(dl(d)+' — '+k.naam+((k.frequentie||1)>1?' ('+n+')':''));
+      }
+    });
+  });
+  add(T('Lege plekken','Empty slots','Espacios vacíos'),it);
+
+  // 8 in-person checks (Zoom mode)
+  if(online){
+    it=[]; rows.forEach(function(r){ var s=byId[r.sprekerId]; if(isP(r.sabbath)&&s&&!s.presencialOK) it.push(nm(r.sprekerId)+': '+dl(r.sabbath)+alt(r,r.sprekerId)); });
+    add(T('Fysiek zaterdag zonder fysiek-vlag','In-person Sabbath without the in-person flag','Sábado presencial sin la marca de presencial'),it);
+    var pres=sabs.filter(isP); it=[];
+    for(var i=1;i<pres.length;i++){ var gap=idx[pres[i]]-idx[pres[i-1]]; if(gap>2) it.push(dl(pres[i-1])+' → '+dl(pres[i])+' ('+gap+' '+T('weken','weeks','semanas')+')'); }
+    add(T('Meer dan 2 weken zonder fysieke samenkomst','More than 2 weeks without an in-person meeting','Más de 2 semanas sin reunión presencial'),it);
+    it=[]; pres.forEach(function(d){ rows.filter(function(r){return r.sabbath===d;}).forEach(function(r){
+      var prev=pres.filter(function(p){return idx[p]<idx[d]&&idx[d]-idx[p]<=3&&rows.some(function(x){return x.sabbath===p&&x.sprekerId===r.sprekerId;});})[0];
+      if(prev) it.push(nm(r.sprekerId)+': '+dl(prev)+' + '+dl(d)+alt(r,r.sprekerId));
+    }); });
+    add(T('Zelfde persoon kort na elkaar fysiek','Same person in person too soon','Misma persona presencial muy seguido'),it);
+  }
+
+  var h='<div style="padding:16px;max-height:80vh;overflow:auto"><div style="font-size:16px;font-weight:800;margin-bottom:10px">'+T('Rooster controleren','Schedule review','Revisión del programa')+'</div>';
+  if(!sections.length) h+='<div style="color:#83A371;font-weight:700;padding:12px 0">✓ '+T('Alles in orde.','All good.','Todo en orden.')+'</div>';
+  sections.forEach(function(sec){
+    h+='<div style="margin-bottom:12px"><div style="font-size:12px;font-weight:800;color:#E8A838;margin-bottom:4px">⚠ '+escapeHtml(sec.t)+' ('+sec.i.length+')</div>';
+    sec.i.forEach(function(x){ h+='<div style="font-size:12px;color:var(--text2);padding:3px 0;border-top:1px solid var(--border)">'+escapeHtml(x)+'</div>'; });
+    h+='</div>';
+  });
+  h+='<button onclick="closeModals()" class="btn" style="width:100%;margin-top:6px">'+T('Sluiten','Close','Cerrar')+'</button></div>';
+  showModal(h);
+}
 function roosterSetOnline(on){ roosterData.online=!!on; saveRooster(); renderRooster(); }
 function roosterTogglePresencial(sab){
   if(!roosterData.presencial) roosterData.presencial=[];
@@ -21786,6 +21890,7 @@ function renderRoosterMain(){
   h+='<div style="display:flex;gap:6px">';
   h+='<button id="rooster-undo-btn" onclick="roosterUndo()" title="'+tp('rooster_undo_lbl')+'" style="'+_ib+';font-size:15px;opacity:'+(roosterUndoStack.length?'1':'.35')+'" '+(roosterUndoStack.length?'':'disabled')+'>↺</button>';
   h+='<button id="rooster-redo-btn" onclick="roosterRedo()" title="'+tp('rooster_redo_lbl')+'" style="'+_ib+';font-size:15px;opacity:'+(roosterRedoStack.length?'1':'.35')+'" '+(roosterRedoStack.length?'':'disabled')+'>↻</button>';
+  h+='<button onclick="roosterReview()" title="'+tMap({nl:'Rooster controleren',en:'Review schedule',es:'Revisar programa'})+'" style="'+_ib+'">\u2713 '+tMap({nl:'Controleer',en:'Review',es:'Revisar'})+'</button>';
   h+='<button onclick="var m=document.getElementById(\'rooster-more\');m.style.display=m.style.display===\'none\'?\'block\':\'none\'" title="…" style="'+_ib+';font-size:15px;letter-spacing:1px">⋯</button>';
   h+='</div></div>';
   // Less-used / destructive actions tucked into a small menu
