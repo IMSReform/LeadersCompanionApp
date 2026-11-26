@@ -21728,6 +21728,42 @@ function renderRoosterListBar(mode){
   if(mode==='rest') h+='<div class="card" style="padding:0;margin-bottom:10px;overflow:hidden"><div onclick="roosterNewList()" style="display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;cursor:pointer;color:var(--brand);font-size:13px;font-weight:700">+ '+escapeHtml(tp('rooster_list_new_tip'))+'</div></div>';
   return h;
 }
+// ── Import people (and optionally churches) from another saved list ──
+function roosterImportOpen(srcId){
+  var lists=roosterData.otherLists||[]; if(!lists.length) return;
+  var src=lists.find(function(l){return l.id===srcId;})||lists[0];
+  var have={}; (roosterData.sprekers||[]).forEach(function(p){have[(p.naam||'').toLowerCase()]=true;});
+  var people=(src.data.sprekers||[]).filter(function(p){return p.type!=='worker';});
+  var h='<div style="padding:16px;max-height:80vh;overflow:auto"><div style="font-size:16px;font-weight:800;margin-bottom:10px">'+escapeHtml(tp('rooster_import_title'))+'</div>';
+  h+='<select onchange="roosterImportOpen(this.value)" style="width:100%;padding:9px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface);font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px">';
+  lists.forEach(function(l){ h+='<option value="'+l.id+'"'+(l.id===src.id?' selected':'')+'>'+escapeHtml(l.name)+'</option>'; });
+  h+='</select>';
+  if(!people.length) h+='<div style="color:var(--text3);font-size:13px;padding:8px 0">'+escapeHtml(tp('rooster_import_none'))+'</div>';
+  people.forEach(function(p,i){
+    var dup=have[(p.naam||'').toLowerCase()];
+    h+='<label style="display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid var(--border);font-size:13px;'+(dup?'opacity:.5':'')+'"><input type="checkbox" data-imp="'+i+'" '+(dup?'disabled':'checked')+' style="width:16px;height:16px"><span style="flex:1">'+escapeHtml(rpName(p))+'</span>'+(dup?'<span style="font-size:11px;color:var(--text3)">'+escapeHtml(tp('rooster_import_present'))+'</span>':'')+'</label>';
+  });
+  if((src.data.kerken||[]).length) h+='<label style="display:flex;align-items:center;gap:8px;padding:10px 0 4px;font-size:12px;font-weight:600;color:var(--text2)"><input type="checkbox" id="imp-kerken" style="width:16px;height:16px">'+escapeHtml(tp('rooster_import_churches'))+'</label>';
+  h+='<div style="display:flex;gap:8px;margin-top:12px"><button onclick="roosterImportDo(\''+src.id+'\')" class="btn primary" style="flex:1">'+escapeHtml(tp('rooster_import_do'))+'</button><button onclick="closeModals()" class="btn">'+escapeHtml(tp('rooster_re_cancel'))+'</button></div></div>';
+  showModal(h);
+}
+function roosterImportDo(srcId){
+  var src=(roosterData.otherLists||[]).find(function(l){return l.id===srcId;}); if(!src) return;
+  var people=(src.data.sprekers||[]).filter(function(p){return p.type!=='worker';});
+  var n=0;
+  document.querySelectorAll('input[data-imp]').forEach(function(cb){
+    if(!cb.checked||cb.disabled) return;
+    var p=JSON.parse(JSON.stringify(people[parseInt(cb.getAttribute('data-imp'),10)]));
+    p.id='s'+Date.now()+'_'+(n++); p.beschikbaar=[]; p.onbeschikbaar=[]; p.voorkeur=[]; delete p.maxKeer;
+    roosterData.sprekers.push(p);
+  });
+  var ck=document.getElementById('imp-kerken');
+  if(ck&&ck.checked){
+    var haveK={}; roosterData.kerken.forEach(function(k){haveK[(k.naam||'').toLowerCase()]=true;});
+    (src.data.kerken||[]).forEach(function(k){ if(!haveK[(k.naam||'').toLowerCase()]){ var c=JSON.parse(JSON.stringify(k)); c.id='k'+Date.now()+'_'+(n++); roosterData.kerken.push(c); } });
+  }
+  closeModals(); saveRooster(); renderRooster();
+}
 function roosterSetOnline(on){ roosterData.online=!!on; saveRooster(); renderRooster(); }
 function roosterTogglePresencial(sab){
   if(!roosterData.presencial) roosterData.presencial=[];
