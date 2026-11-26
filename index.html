@@ -21679,18 +21679,28 @@ function roosterDeleteList(){
   if(!nd.gesloten)nd.gesloten=[]; if(!nd.voetnoten)nd.voetnoten=[]; if(!nd.geschiedenis)nd.geschiedenis={};
   roosterData=nd; _rooResetUi(); saveRooster(); renderRooster();
 }
+var _rooListOpen=false;
+function roosterToggleListBar(){ _rooListOpen=!_rooListOpen; renderRooster(); }
 function renderRoosterListBar(){
   _rooEnsureList();
   var bs='padding:6px 10px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-size:13px;font-weight:700;cursor:pointer;line-height:1';
-  var h='<div class="card" style="padding:8px 12px;margin-bottom:10px;display:flex;align-items:center;gap:6px">';
+  var n=roosterData.otherLists.length+1;
+  var h='<div class="card" style="padding:0;margin-bottom:10px;overflow:hidden">';
+  h+='<div onclick="roosterToggleListBar()" style="display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer">';
   h+='<span style="font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.05em">'+escapeHtml(tp('rooster_list_lbl')).toUpperCase()+'</span>';
-  h+='<select onchange="roosterSwitchList(this.value)" style="flex:1;min-width:0;padding:7px 9px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface);font-size:13px;font-weight:700;color:var(--text)">';
-  h+='<option value="'+roosterData.listId+'" selected>'+escapeHtml(roosterData.listName)+'</option>';
-  roosterData.otherLists.forEach(function(l){ h+='<option value="'+l.id+'">'+escapeHtml(l.name)+'</option>'; });
-  h+='</select>';
-  h+='<button onclick="roosterNewList()" title="'+escapeHtml(tp('rooster_list_new_tip'))+'" style="'+bs+'">+</button>';
-  h+='<button onclick="roosterRenameList()" title="'+escapeHtml(tp('rooster_list_rename_tip'))+'" style="'+bs+'">✎</button>';
-  if(roosterData.otherLists.length) h+='<button onclick="roosterDeleteList()" title="'+escapeHtml(tp('rooster_list_delete_tip'))+'" style="'+bs+';color:#E74C3C">\u{1F5D1}</button>';
+  h+='<span style="flex:1;min-width:0;font-size:13px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escapeHtml(roosterData.listName)+(n>1?' <span style="font-weight:600;color:var(--text3)">('+n+')</span>':'')+'</span>';
+  h+='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="2" style="transition:transform .2s;transform:rotate('+(_rooListOpen?'180':'0')+'deg)"><polyline points="6 9 12 15 18 9"/></svg></div>';
+  if(_rooListOpen){
+    h+='<div style="display:flex;align-items:center;gap:6px;padding:0 12px 12px;border-top:1px solid var(--border);padding-top:10px">';
+    h+='<select onchange="roosterSwitchList(this.value)" style="flex:1;min-width:0;padding:7px 9px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface);font-size:13px;font-weight:700;color:var(--text)">';
+    h+='<option value="'+roosterData.listId+'" selected>'+escapeHtml(roosterData.listName)+'</option>';
+    roosterData.otherLists.forEach(function(l){ h+='<option value="'+l.id+'">'+escapeHtml(l.name)+'</option>'; });
+    h+='</select>';
+    h+='<button onclick="roosterNewList()" title="'+escapeHtml(tp('rooster_list_new_tip'))+'" style="'+bs+'">+</button>';
+    h+='<button onclick="roosterRenameList()" title="'+escapeHtml(tp('rooster_list_rename_tip'))+'" style="'+bs+'">✎</button>';
+    if(roosterData.otherLists.length) h+='<button onclick="roosterDeleteList()" title="'+escapeHtml(tp('rooster_list_delete_tip'))+'" style="'+bs+';color:#E74C3C">\u{1F5D1}</button>';
+    h+='</div>';
+  }
   h+='</div>';
   return h;
 }
