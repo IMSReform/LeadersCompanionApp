@@ -22841,7 +22841,8 @@ function roosterExport(){
   // LANG, so it reads correctly in every language without a separate baked
   // image per language. 8pt keeps it proportioned for this PDF's smaller A5
   // page (the GC export's A4 page uses 11pt).
-  w.document.write(orgHeaderHtml(8));
+  // Own block with clearance below, so the isotope can never run into the table header.
+  w.document.write('<div style="display:block;overflow:hidden;margin-bottom:5mm;padding-bottom:1mm;break-after:avoid;page-break-after:avoid">'+orgHeaderHtml(8)+'</div>');
   w.document.write(quoteHtml);
   w.document.write(tbl);
   w.document.write(footnotesHtml);
