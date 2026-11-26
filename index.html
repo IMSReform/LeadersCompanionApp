@@ -21060,7 +21060,7 @@ function loadRooster(){ try{var d=localStorage.getItem('_zdapres_rooster');if(d)
 function roosterPurposeLabel(){
   var purpose=roosterData.purpose||'prediking';
   if(purpose==='overig') return (roosterData.purposeCustom&&roosterData.purposeCustom.trim())?roosterData.purposeCustom.trim():tp('rooster_purpose_overig');
-  var map={prediking:'rooster_purpose_prediking',schoonmaak:'rooster_purpose_schoonmaak',techniek:'rooster_purpose_techniek',portier:'rooster_purpose_portier',muziek:'rooster_purpose_muziek',collecte:'rooster_purpose_collecte'};
+  var map={prediking:'rooster_purpose_prediking',schoonmaak:'rooster_purpose_schoonmaak',techniek:'rooster_purpose_techniek',portier:'rooster_purpose_portier',muziek:'rooster_purpose_muziek',collecte:'rooster_purpose_collecte',cultos:'rooster_purpose_cultos'};
   return tp(map[purpose]||'rooster_purpose_prediking');
 }
 function roosterIsPreaching(){ return (roosterData.purpose||'prediking')==='prediking'; }
@@ -21082,7 +21082,7 @@ function renderRoosterPurposeCard(){
   h+='<div class="card-label" style="margin-bottom:6px">'+tp('rooster_purpose_label')+'</div>';
   h+='<div style="font-size:12px;color:var(--text3);margin-bottom:10px;line-height:1.5">'+tp('rooster_purpose_explain')+'</div>';
   var purpose=roosterData.purpose||'prediking';
-  var opts=[['prediking','rooster_purpose_prediking'],['schoonmaak','rooster_purpose_schoonmaak'],['techniek','rooster_purpose_techniek'],['portier','rooster_purpose_portier'],['muziek','rooster_purpose_muziek'],['collecte','rooster_purpose_collecte'],['overig','rooster_purpose_overig']];
+  var opts=[['prediking','rooster_purpose_prediking'],['cultos','rooster_purpose_cultos'],['schoonmaak','rooster_purpose_schoonmaak'],['techniek','rooster_purpose_techniek'],['portier','rooster_purpose_portier'],['muziek','rooster_purpose_muziek'],['collecte','rooster_purpose_collecte'],['overig','rooster_purpose_overig']];
   h+='<select id="rp-purpose" onchange="roosterData.purpose=this.value;if(this.value===\'prediking\')roosterData.weekday=6;saveRooster();renderRooster()" style="width:100%;padding:9px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface);font-size:13px;color:var(--text);box-sizing:border-box">';
   opts.forEach(function(o){ h+='<option value="'+o[0]+'"'+(purpose===o[0]?' selected':'')+'>'+tp(o[1])+'</option>'; });
   h+='</select>';
@@ -21213,7 +21213,7 @@ function getRoosterSabbaths(){
   while(d.getUTCDay()!==wd) d.setUTCDate(d.getUTCDate()+1);
   while(d<=end){
     sabbaths.push(d.toISOString().split('T')[0]);
-    d.setUTCDate(d.getUTCDate()+7);
+    d.setUTCDate(d.getUTCDate()+7*Math.max(1,roosterData.interval||1));
   }
   return sabbaths;
 }
@@ -21289,7 +21289,7 @@ function renderRooster(){
     h+='<span style="font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.05em">'+escapeHtml(tp('rooster_settings_lbl')).toUpperCase()+'</span>';
     h+='<span style="flex:1;min-width:0;font-size:12px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escapeHtml(sum)+'</span>';
     h+='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="2" style="transform:rotate(180deg)"><polyline points="6 9 12 15 18 9"/></svg></div>';
-    h+=_setP+_setPer;
+    h+=_setP+_setPer+renderRoosterIntervalCard()+renderRoosterSubSections();
     h+=_rooDivider();
   })();
   if(!_rooBodyOpen){ el.innerHTML=h+renderRoosterListBar('rest'); return; }
@@ -21302,16 +21302,7 @@ function renderRooster(){
   // generic label everywhere is simpler and matches the "Verantwoordelijken"
   // wording already used for the add-person flow, instead of switching
   // wording depending on purpose.
-  h+='<div style="display:flex;gap:5px;margin-bottom:12px">';
-  [{k:'rooster',l:tp('rooster_tab_rooster')},{k:'kerken',l:roosterIsPreaching()?tp('rooster_tab_kerken'):tp('rooster_tab_locaties')},{k:'sprekers',l:tp('rooster_tab_personen')}].forEach(function(t){
-    var act=_roosterTab===t.k;
-    h+='<button onclick="_roosterTab=\''+t.k+'\';renderRooster()" style="flex:1;padding:8px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid '+(act?'var(--brand)':'var(--border)')+';background:'+(act?'var(--brand)':'var(--surface)')+';color:'+(act?'#fff':'var(--text3)')+'">'+t.l+'</button>';
-  });
-  h+='</div>';
-
-  if(_roosterTab==='kerken') h+=renderRoosterKerken();
-  else if(_roosterTab==='sprekers') h+=renderRoosterSprekers();
-  else h+=renderRoosterMain();
+  h+=renderRoosterMain();
 
   h+=_rooDivider()+renderRoosterListBar('rest');
   el.innerHTML=h;
@@ -21830,10 +21821,10 @@ function roosterImportDo(srcId){
 // ── New-list wizard: name & purpose → dates & weekday → locations (Zoom) → import people ──
 var _wz=null;
 function roosterNewList(){
-  _wz={step:1,name:'',group:'',purpose:'prediking',custom:'',weekday:6,start:'',end:'',locs:[{naam:'',zoom:false}],impSrc:null,impSel:null};
+  _wz={step:1,name:'',group:'',purpose:'prediking',custom:'',weekday:6,interval:1,names:'',start:'',end:'',locs:[{naam:'',zoom:false}],impSrc:null,impSel:null};
   roosterWizRender();
 }
-function _wzTotal(){ return (roosterData.otherLists||[]).length?4:3; }
+function _wzTotal(){ return 4; }
 function _wzRead(){
   if(!_wz) return;
   var g=function(id){return document.getElementById(id);};
@@ -21842,6 +21833,8 @@ function _wzRead(){
   if(g('wz-purpose')) _wz.purpose=g('wz-purpose').value;
   if(g('wz-custom')) _wz.custom=g('wz-custom').value;
   if(g('wz-weekday')) _wz.weekday=parseInt(g('wz-weekday').value,10);
+  if(g('wz-interval')) _wz.interval=parseInt(g('wz-interval').value,10)||1;
+  if(g('wz-names')) _wz.names=g('wz-names').value;
   if(g('wz-start')) _wz.start=g('wz-start').value;
   if(g('wz-end')) _wz.end=g('wz-end').value;
   _wz.locs.forEach(function(l,i){ if(g('wz-loc-'+i)){ l.naam=g('wz-loc-'+i).value; l.zoom=g('wz-zoom-'+i).checked; } });
@@ -21874,7 +21867,7 @@ function roosterWizRender(){
     h+='<label style="'+lbl+'">'+escapeHtml(tp('rooster_wiz_name')).toUpperCase()+'</label><input id="wz-name" type="text" value="'+escapeHtml(w.name)+'" style="'+inp+'">';
     h+='<label style="'+lbl+'">'+escapeHtml(tp('rooster_group_lbl')).toUpperCase()+'</label><input id="wz-group" list="wz-groups" type="text" value="'+escapeHtml(w.group)+'" style="'+inp+'"><datalist id="wz-groups">'+_rooGroupNames().map(function(n){return '<option value="'+escapeHtml(n)+'">';}).join('')+'</datalist>';
     h+='<label style="'+lbl+'">'+escapeHtml(tp('rooster_wiz_purpose')).toUpperCase()+'</label><select id="wz-purpose" onchange="_wzRead();roosterWizRender()" style="'+inp+'">';
-    [['prediking','rooster_purpose_prediking'],['schoonmaak','rooster_purpose_schoonmaak'],['techniek','rooster_purpose_techniek'],['portier','rooster_purpose_portier'],['muziek','rooster_purpose_muziek'],['collecte','rooster_purpose_collecte'],['overig','rooster_purpose_overig']].forEach(function(o){ h+='<option value="'+o[0]+'"'+(w.purpose===o[0]?' selected':'')+'>'+escapeHtml(tp(o[1]))+'</option>'; });
+    [['prediking','rooster_purpose_prediking'],['cultos','rooster_purpose_cultos'],['schoonmaak','rooster_purpose_schoonmaak'],['techniek','rooster_purpose_techniek'],['portier','rooster_purpose_portier'],['muziek','rooster_purpose_muziek'],['collecte','rooster_purpose_collecte'],['overig','rooster_purpose_overig']].forEach(function(o){ h+='<option value="'+o[0]+'"'+(w.purpose===o[0]?' selected':'')+'>'+escapeHtml(tp(o[1]))+'</option>'; });
     h+='</select>';
     if(w.purpose==='overig') h+='<input id="wz-custom" type="text" value="'+escapeHtml(w.custom)+'" placeholder="'+escapeHtml(tp('rooster_purpose_custom_ph'))+'" style="'+inp+'">';
   } else if(w.step===2){
@@ -21884,6 +21877,7 @@ function roosterWizRender(){
       dk.forEach(function(k,i){ h+='<option value="'+i+'"'+(w.weekday===i?' selected':'')+'>'+escapeHtml(tp(k))+'</option>'; });
       h+='</select>';
     }
+    h+='<label style="'+lbl+'">'+escapeHtml(tp('rooster_interval_lbl')).toUpperCase()+'</label><select id="wz-interval" style="'+inp+'">'+[1,2,3].map(function(n){return '<option value="'+n+'"'+((w.interval||1)===n?' selected':'')+'>'+escapeHtml(tp('rooster_interval_'+n))+'</option>';}).join('')+'</select>';
     h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div><label style="'+lbl+'">'+escapeHtml(tp('rooster_wiz_from')).toUpperCase()+'</label><input id="wz-start" type="date" value="'+escapeHtml(w.start)+'" style="'+inp+'"></div><div><label style="'+lbl+'">'+escapeHtml(tp('rooster_wiz_to')).toUpperCase()+'</label><input id="wz-end" type="date" value="'+escapeHtml(w.end)+'" style="'+inp+'"></div></div>';
   } else if(w.step===3){
     h+='<label style="'+lbl+'">'+escapeHtml(tp('rooster_wiz_locs')).toUpperCase()+'</label>';
@@ -21894,13 +21888,14 @@ function roosterWizRender(){
     });
     h+='<button onclick="roosterWizAddLoc()" class="btn full" style="margin-top:2px">'+escapeHtml(tp('rooster_wiz_loc_add'))+'</button>';
   } else {
+    h+='<label style="'+lbl+'">'+escapeHtml(tp('rooster_wiz_people_add')).toUpperCase()+'</label><textarea id="wz-names" rows="4" style="'+inp+';font-family:inherit">'+escapeHtml(w.names||'')+'</textarea>';
     var lists=roosterData.otherLists||[];
-    var src=lists.find(function(l){return l.id===w.impSrc;})||lists[0]; w.impSrc=src.id;
+    var src=lists.find(function(l){return l.id===w.impSrc;})||lists[0]; if(src) w.impSrc=src.id; else src={id:'',data:{sprekers:[]}};
     var people=(src.data.sprekers||[]).filter(function(p){return p.type!=='worker';});
-    h+='<label style="'+lbl+'">'+escapeHtml(tp('rooster_wiz_import')).toUpperCase()+'</label><select id="wz-src" onchange="roosterWizSrc()" style="'+inp+'">';
+    if(lists.length) h+='<label style="'+lbl+'">'+escapeHtml(tp('rooster_wiz_import')).toUpperCase()+'</label><select id="wz-src" onchange="roosterWizSrc()" style="'+inp+'">';
     lists.forEach(function(l){ h+='<option value="'+l.id+'"'+(l.id===src.id?' selected':'')+'>'+escapeHtml(l.name)+'</option>'; });
-    h+='</select>';
-    if(!people.length) h+='<div style="color:var(--text3);font-size:13px">'+escapeHtml(tp('rooster_import_none'))+'</div>';
+    if(lists.length) h+='</select>';
+    if(lists.length&&!people.length) h+='<div style="color:var(--text3);font-size:13px">'+escapeHtml(tp('rooster_import_none'))+'</div>';
     people.forEach(function(p,i){
       var on=w.impSel?w.impSel[i]!==false:true;
       h+='<label style="display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid var(--border);font-size:13px"><input type="checkbox" data-wzimp="'+i+'" '+(on?'checked ':'')+'style="width:16px;height:16px"><span>'+escapeHtml(rpName(p))+'</span></label>';
@@ -21915,7 +21910,7 @@ function roosterWizRender(){
 function roosterWizFinish(){
   var w=_wz; if(!w) return;
   var st=_rooStash(); var others=st.others.concat([st.entry]);
-  var fresh={kerken:[],sprekers:[],rooster:[],gesloten:[],periode:{start:w.start||'',end:w.end||''},weekday:(w.purpose==='prediking'?6:(w.weekday==null||isNaN(w.weekday)?6:w.weekday)),voetnoten:[],egwQuote:'',egwAuthor:'',egwSigner:'',egwSignerRole:'',geschiedenis:{},historyEnabled:true,purpose:w.purpose,purposeCustom:w.purpose==='overig'?w.custom:'',dateOrient:'h'};
+  var fresh={kerken:[],sprekers:[],rooster:[],gesloten:[],periode:{start:w.start||'',end:w.end||''},weekday:(w.purpose==='prediking'?6:(w.weekday==null||isNaN(w.weekday)?6:w.weekday)),voetnoten:[],egwQuote:'',egwAuthor:'',egwSigner:'',egwSignerRole:'',geschiedenis:{},historyEnabled:true,purpose:w.purpose,purposeCustom:w.purpose==='overig'?w.custom:'',dateOrient:'h',interval:w.interval||1};
   var named=w.locs.filter(function(l){return (l.naam||'').trim();});
   named.forEach(function(l,i){ fresh.kerken.push({id:'k'+Date.now()+'_'+i,naam:l.naam.trim(),plaats:'',grootte:'middel',eigenGebouw:false}); });
   var anyZoom=named.some(function(l){return l.zoom;}), mixed=named.some(function(l){return !l.zoom;});
@@ -21930,6 +21925,7 @@ function roosterWizFinish(){
       fresh.sprekers.push(c);
     });
   }
+  (w.names||'').split(/\n|;/).map(function(x){return x.trim();}).filter(Boolean).forEach(function(nm,i){ fresh.sprekers.push({id:'s'+Date.now()+'_n'+i,naam:nm,type:'lid',beschikbaar:[],onbeschikbaar:[],voorkeur:[]}); });
   fresh.listId='l'+Date.now()+Math.random().toString(36).slice(2,6); fresh.listName=w.name.trim(); fresh.listGroup=(w.group||'').trim(); fresh.otherLists=others;
   roosterData=fresh; _rooResetUi(); _rooSetOpen=false; _rooBodyOpen=true; _rooYear=false; _roosterTab='rooster'; _wz=null;
   closeModals(); saveRooster(); renderRooster();
@@ -22163,8 +22159,8 @@ function renderRoosterMain(){
     h+='<div style="font-size:16px;font-weight:700;color:var(--brand);margin-bottom:8px">'+tp('rooster_setup')+'</div>';
     h+='<div style="font-size:13px;color:var(--text3);margin-bottom:16px">'+tp('rooster_setup_sub')+'</div>';
     h+='<div style="display:flex;gap:8px;justify-content:center">';
-    if(!kerken.length) h+='<button onclick="_roosterTab=\'kerken\';renderRooster()" class="btn primary">'+(roosterIsPreaching()?tp('rooster_tab_kerken'):tp('rooster_tab_locaties'))+'</button>';
-    if(!sprekers.length) h+='<button onclick="_roosterTab=\'sprekers\';renderRooster()" class="btn">'+tp('rooster_tab_personen')+'</button>';
+    if(!kerken.length) h+='<button onclick="_rooSetOpen=true;_rooBodyOpen=true;_rooSub=\'kerken\';renderRooster()" class="btn primary">'+(roosterIsPreaching()?tp('rooster_tab_kerken'):tp('rooster_tab_locaties'))+'</button>';
+    if(!sprekers.length) h+='<button onclick="_rooSetOpen=true;_rooBodyOpen=true;_rooSub=\'sprekers\';renderRooster()" class="btn">'+tp('rooster_tab_personen')+'</button>';
     h+='</div></div>';
     return h;
   }
@@ -23220,6 +23216,32 @@ function cronoImportText(text){
 }
 
 
+
+// ── Interval + accordion sections inside the list settings ──
+var _rooSub=null;
+function roosterToggleSub(k){ _rooSub=(_rooSub===k)?null:k; renderRooster(); }
+function renderRoosterIntervalCard(){
+  var iv=roosterData.interval||1;
+  var h='<div class="card" style="padding:12px 14px;margin-bottom:10px"><div class="card-label" style="margin-bottom:6px">'+tp('rooster_interval_lbl')+'</div>';
+  h+='<select id="rp-interval" onchange="roosterData.interval=parseInt(this.value,10);saveRooster();renderRooster()" style="width:100%;padding:9px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface);font-size:13px;color:var(--text);box-sizing:border-box">';
+  [1,2,3].forEach(function(n){ h+='<option value="'+n+'"'+(iv===n?' selected':'')+'>'+tp('rooster_interval_'+n)+'</option>'; });
+  h+='</select></div>';
+  return h;
+}
+function renderRoosterSubSections(){
+  var h='';
+  [{k:'kerken',l:roosterIsPreaching()?tp('rooster_tab_kerken'):tp('rooster_tab_locaties'),n:(roosterData.kerken||[]).length},{k:'sprekers',l:tp('rooster_tab_personen'),n:(roosterData.sprekers||[]).length}].forEach(function(t){
+    var open=_rooSub===t.k;
+    h+='<div onclick="roosterToggleSub(\''+t.k+'\')" class="card" style="display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer;margin-bottom:8px">';
+    h+='<span style="flex:1;font-size:13px;font-weight:700;color:var(--text)">'+escapeHtml(t.l)+'</span><span style="font-size:12px;color:var(--text3)">'+t.n+'</span>';
+    h+='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="2" style="transform:rotate('+(open?180:0)+'deg)"><polyline points="6 9 12 15 18 9"/></svg></div>';
+    if(open) h+=(t.k==='kerken'?renderRoosterKerken():renderRoosterSprekers());
+  });
+  return h;
+}
+
+// ── Cronograma settings/wizard strings ──
+(function(){var T={"nl": {"rooster_purpose_prediking": "Prediking (sabbat)", "rooster_purpose_cultos": "Erediensten", "rooster_interval_lbl": "Frequentie", "rooster_interval_1": "Elke week", "rooster_interval_2": "Om de week", "rooster_interval_3": "Om de 3 weken", "rooster_wiz_people_add": "Personen toevoegen (één per regel)"}, "en": {"rooster_purpose_prediking": "Preaching (Sabbath)", "rooster_purpose_cultos": "Services", "rooster_interval_lbl": "Frequency", "rooster_interval_1": "Every week", "rooster_interval_2": "Every 2 weeks", "rooster_interval_3": "Every 3 weeks", "rooster_wiz_people_add": "Add people (one per line)"}, "es": {"rooster_purpose_prediking": "Predicación sábados", "rooster_purpose_cultos": "Cultos", "rooster_interval_lbl": "Frecuencia", "rooster_interval_1": "Cada semana", "rooster_interval_2": "Cada 2 semanas", "rooster_interval_3": "Cada 3 semanas", "rooster_wiz_people_add": "Añadir personas (una por línea)"}, "fr": {"rooster_purpose_prediking": "Prédication (sabbat)", "rooster_purpose_cultos": "Cultes", "rooster_interval_lbl": "Fréquence", "rooster_interval_1": "Chaque semaine", "rooster_interval_2": "Toutes les 2 semaines", "rooster_interval_3": "Toutes les 3 semaines", "rooster_wiz_people_add": "Ajouter des personnes (une par ligne)"}, "de": {"rooster_purpose_prediking": "Predigt (Sabbat)", "rooster_purpose_cultos": "Gottesdienste", "rooster_interval_lbl": "Häufigkeit", "rooster_interval_1": "Jede Woche", "rooster_interval_2": "Alle 2 Wochen", "rooster_interval_3": "Alle 3 Wochen", "rooster_wiz_people_add": "Personen hinzufügen (eine pro Zeile)"}, "ro": {"rooster_purpose_prediking": "Predicare (sâmbătă)", "rooster_purpose_cultos": "Servicii de cult", "rooster_interval_lbl": "Frecvență", "rooster_interval_1": "În fiecare săptămână", "rooster_interval_2": "La fiecare 2 săptămâni", "rooster_interval_3": "La fiecare 3 săptămâni", "rooster_wiz_people_add": "Adaugă persoane (câte una pe rând)"}, "it": {"rooster_purpose_prediking": "Predicazione (sabato)", "rooster_purpose_cultos": "Culti", "rooster_interval_lbl": "Frequenza", "rooster_interval_1": "Ogni settimana", "rooster_interval_2": "Ogni 2 settimane", "rooster_interval_3": "Ogni 3 settimane", "rooster_wiz_people_add": "Aggiungi persone (una per riga)"}, "pt": {"rooster_purpose_prediking": "Pregação (sábado)", "rooster_purpose_cultos": "Cultos", "rooster_interval_lbl": "Frequência", "rooster_interval_1": "Todas as semanas", "rooster_interval_2": "A cada 2 semanas", "rooster_interval_3": "A cada 3 semanas", "rooster_wiz_people_add": "Adicionar pessoas (uma por linha)"}};var D=PRES_STRINGS;Object.keys(T).forEach(function(l){D[l]=D[l]||{};Object.assign(D[l],T[l]);});Object.keys(D.es||{}).forEach(function(k){ if(k.indexOf('rooster_')===0&&typeof D.es[k]==='string') D.es[k]=D.es[k].replace(/Programa/g,'Cronograma').replace(/programa/g,'cronograma'); });})();
 
 // INIT
 function finishBootPres(){
