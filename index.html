@@ -21632,7 +21632,7 @@ function roosterReview(){
 // roosterData.otherLists = [{id,name,data}], so they save and sync with it.
 function _rooClone(o){ return JSON.parse(JSON.stringify(o)); }
 function _rooEnsureList(){
-  if(!roosterData.listId) roosterData.listId='l'+Date.now();
+  if(!roosterData.listId) roosterData.listId='l'+Date.now()+Math.random().toString(36).slice(2,6);
   if(!roosterData.listName) roosterData.listName=tp('rooster_list_default')+' 1';
   if(!roosterData.otherLists) roosterData.otherLists=[];
 }
@@ -21652,7 +21652,7 @@ function roosterNewList(){
     fresh.kerken=_rooClone(roosterData.kerken||[]);
     fresh.sprekers=_rooClone(roosterData.sprekers||[]).map(function(s){ s.beschikbaar=[]; s.onbeschikbaar=[]; s.presencialOK=s.presencialOK; return s; });
   }
-  fresh.listId='l'+Date.now(); fresh.listName=name.trim(); fresh.otherLists=others;
+  fresh.listId='l'+Date.now()+Math.random().toString(36).slice(2,6); fresh.listName=name.trim(); fresh.otherLists=others;
   roosterData=fresh; _rooResetUi(); saveRooster(); renderRooster();
 }
 function roosterSwitchList(id){
