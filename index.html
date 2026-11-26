@@ -21506,6 +21506,9 @@ function renderRoosterSprekers(){
   }
 }
 
+var _rooHi=null;
+function roosterHighlight(id){ _rooHi=(_rooHi===id)?null:id; renderRooster(); }
+
 function toggleSpAcc(i){
   _spExpanded[i] = !_spExpanded[i];
   renderRooster();
@@ -21720,8 +21723,10 @@ function renderRoosterMain(){
     // touch handlers are a parallel implementation that reuses the exact
     // same drop logic (see roosterTouchEnd below).
     h+='ontouchstart="roosterTouchStart(event,\'speaker\',\''+s.id+'\')" ontouchmove="roosterTouchMove(event)" ontouchend="roosterTouchEnd(event)" ';
-    h+='title="'+(sActief?'':tp('rooster_paused_tooltip'))+'" ';
-    h+='style="background:transparent;color:var(--text);padding:5px 4px;font-size:13px;font-weight:600;cursor:grab;user-select:none;touch-action:none'+(sActief?'':';opacity:.45')+'">'+s.naam.split(' ')[0]+(sActief?'':' ⏸')+'</div>';
+    h+='title="'+(sActief?'':tp('rooster_paused_tooltip'))+'" onclick="roosterHighlight(\''+s.id+'\')" ';
+    var _hi=(_rooHi===s.id);
+    var _cnt=_hi?roosterData.rooster.filter(function(r){return r.sprekerId===s.id&&sabbaths.indexOf(r.sabbath)>=0;}).length:0;
+    h+='style="'+(_hi?'background:var(--brand-light);outline:1.5px solid var(--brand);border-radius:8px;color:var(--brand);':'background:transparent;color:var(--text);')+'padding:5px 6px;font-size:13px;font-weight:600;cursor:grab;user-select:none;touch-action:none'+(sActief?'':';opacity:.45')+'">'+s.naam.split(' ')[0]+(sActief?'':' ⏸')+(_hi?' <span style="font-size:11px;font-weight:800">· '+_cnt+'×</span>':'')+'</div>';
   });
   h+='</div></div>';
 
@@ -21775,7 +21780,7 @@ function renderRoosterMain(){
         h+='<div draggable="true" data-slotid="'+slotId+'" ondragstart="dragSlot(event,\''+slotId+'\')" ';
         h+='ontouchstart="roosterTouchStart(event,\'slot\',\''+slotId+'\')" ontouchmove="roosterTouchMove(event)" ontouchend="roosterTouchEnd(event)" ';
         h+='onclick="roosterEditSlot(\''+sab+'\',\''+k.id+'\','+d+')" title="'+lockTitle+'" ';
-        h+='style="flex:1;min-width:0;background:transparent;color:var(--text);padding:4px 4px;font-size:12px;font-weight:600;cursor:grab;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;touch-action:none'+(entry&&entry.customLabel?';font-style:italic;color:var(--text3)':'')+'">';
+        h+='style="flex:1;min-width:0;background:'+(sp&&sp.id===_rooHi?'var(--brand-light);border-radius:6px;outline:1.5px solid var(--brand)':'transparent')+';color:var(--text);padding:4px 4px;font-size:12px;font-weight:600;cursor:grab;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;touch-action:none'+(entry&&entry.customLabel?';font-style:italic;color:var(--text3)':'')+'">';
         h+=cellText+footnoteSup+(sp&&isDouble2?' ⚠':'')+'</div>';
         // Lock/pin toggle — independent of drag-and-drop: locks whoever is
         // already sitting in this slot (whether they got there by drag or
