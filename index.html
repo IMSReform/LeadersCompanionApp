@@ -22209,6 +22209,7 @@ function renderRoosterMain(){
   h+='<button onclick="roosterClearAllData()" style="'+_mi+'">'+tp('rooster_clear_data_btn')+'</button>';
   h+='<button onclick="cronoDownloadList()" style="'+_mi+'">'+tp('crono_export_file')+'</button>';
   h+='<button onclick="cronoImportPick()" style="'+_mi+'">'+tp('crono_import')+'</button>';
+  h+='<button onclick="roosterCheckOpen()" style="'+_mi+'">'+tp('crono_check_btn')+'</button>';
   h+='</div>';
   h+='<label style="display:flex;align-items:center;gap:6px;margin-bottom:8px;font-size:11px;color:var(--text2);cursor:pointer"><input type="checkbox" onchange="roosterSetYear(this.checked)"'+(_rooYear?' checked':'')+' style="width:14px;height:14px;flex-shrink:0"><span>'+tp('rooster_year_view')+'</span></label>';
   h+='<label style="display:flex;align-items:center;gap:6px;margin-bottom:8px;font-size:11px;color:var(--text2);cursor:pointer"><input type="checkbox" onchange="roosterSetOnline(this.checked)"'+(roosterData.online?' checked':'')+' style="width:14px;height:14px;flex-shrink:0"><span>'+tp('rooster_online_mode')+'</span></label>';
@@ -23242,6 +23243,54 @@ function renderRoosterSubSections(){
 
 // ── Cronograma settings/wizard strings ──
 (function(){var T={"nl": {"rooster_purpose_prediking": "Prediking (sabbat)", "rooster_purpose_cultos": "Erediensten", "rooster_interval_lbl": "Frequentie", "rooster_interval_1": "Elke week", "rooster_interval_2": "Om de week", "rooster_interval_3": "Om de 3 weken", "rooster_wiz_people_add": "Personen toevoegen (één per regel)"}, "en": {"rooster_purpose_prediking": "Preaching (Sabbath)", "rooster_purpose_cultos": "Services", "rooster_interval_lbl": "Frequency", "rooster_interval_1": "Every week", "rooster_interval_2": "Every 2 weeks", "rooster_interval_3": "Every 3 weeks", "rooster_wiz_people_add": "Add people (one per line)"}, "es": {"rooster_purpose_prediking": "Predicación sábados", "rooster_purpose_cultos": "Cultos", "rooster_interval_lbl": "Frecuencia", "rooster_interval_1": "Cada semana", "rooster_interval_2": "Cada 2 semanas", "rooster_interval_3": "Cada 3 semanas", "rooster_wiz_people_add": "Añadir personas (una por línea)"}, "fr": {"rooster_purpose_prediking": "Prédication (sabbat)", "rooster_purpose_cultos": "Cultes", "rooster_interval_lbl": "Fréquence", "rooster_interval_1": "Chaque semaine", "rooster_interval_2": "Toutes les 2 semaines", "rooster_interval_3": "Toutes les 3 semaines", "rooster_wiz_people_add": "Ajouter des personnes (une par ligne)"}, "de": {"rooster_purpose_prediking": "Predigt (Sabbat)", "rooster_purpose_cultos": "Gottesdienste", "rooster_interval_lbl": "Häufigkeit", "rooster_interval_1": "Jede Woche", "rooster_interval_2": "Alle 2 Wochen", "rooster_interval_3": "Alle 3 Wochen", "rooster_wiz_people_add": "Personen hinzufügen (eine pro Zeile)"}, "ro": {"rooster_purpose_prediking": "Predicare (sâmbătă)", "rooster_purpose_cultos": "Servicii de cult", "rooster_interval_lbl": "Frecvență", "rooster_interval_1": "În fiecare săptămână", "rooster_interval_2": "La fiecare 2 săptămâni", "rooster_interval_3": "La fiecare 3 săptămâni", "rooster_wiz_people_add": "Adaugă persoane (câte una pe rând)"}, "it": {"rooster_purpose_prediking": "Predicazione (sabato)", "rooster_purpose_cultos": "Culti", "rooster_interval_lbl": "Frequenza", "rooster_interval_1": "Ogni settimana", "rooster_interval_2": "Ogni 2 settimane", "rooster_interval_3": "Ogni 3 settimane", "rooster_wiz_people_add": "Aggiungi persone (una per riga)"}, "pt": {"rooster_purpose_prediking": "Pregação (sábado)", "rooster_purpose_cultos": "Cultos", "rooster_interval_lbl": "Frequência", "rooster_interval_1": "Todas as semanas", "rooster_interval_2": "A cada 2 semanas", "rooster_interval_3": "A cada 3 semanas", "rooster_wiz_people_add": "Adicionar pessoas (uma por linha)"}};var D=PRES_STRINGS;Object.keys(T).forEach(function(l){D[l]=D[l]||{};Object.assign(D[l],T[l]);});Object.keys(D.es||{}).forEach(function(k){ if(k.indexOf('rooster_')===0&&typeof D.es[k]==='string') D.es[k]=D.es[k].replace(/Programa/g,'Cronograma').replace(/programa/g,'cronograma'); });})();
+
+// ── Compare lists: who is scheduled in more than one list in the same week ──
+function _rooAllLists(){
+  var cur={id:roosterData.listId||'cur',name:roosterData.listName||tp('rooster_list_default'),data:roosterData};
+  return [cur].concat((roosterData.otherLists||[]).map(function(l){return {id:l.id,name:l.name,data:l.data};}));
+}
+function roosterCheckOpen(){
+  var lists=_rooAllLists();
+  var h='<div style="padding:16px;max-height:84vh;overflow:auto"><div style="font-size:16px;font-weight:800;color:var(--brand);margin-bottom:6px">'+escapeHtml(tp('crono_check_title'))+'</div>';
+  if(lists.length<2){ h+='<div style="font-size:13px;color:var(--text3);margin:10px 0">'+escapeHtml(tp('crono_check_need'))+'</div><button onclick="closeModals()" class="btn full">'+escapeHtml(tp('rooster_re_cancel'))+'</button></div>'; (typeof roosterShowModal==='function'?roosterShowModal:showModal)(h); return; }
+  h+='<div style="font-size:12px;color:var(--text3);margin-bottom:10px;line-height:1.5">'+escapeHtml(tp('crono_check_help'))+'</div>';
+  lists.forEach(function(l,i){ h+='<label style="display:flex;align-items:center;gap:8px;padding:7px 0;border-top:1px solid var(--border);font-size:13px"><input type="checkbox" data-chk="'+i+'" checked style="width:16px;height:16px"><span>'+escapeHtml(l.name)+'</span></label>'; });
+  h+='<div id="chk-result"></div><div style="display:flex;gap:8px;margin-top:12px"><button onclick="roosterCheckRun()" class="btn primary" style="flex:1">'+escapeHtml(tp('crono_check_run'))+'</button><button onclick="closeModals()" class="btn">'+escapeHtml(tp('rooster_re_cancel'))+'</button></div></div>';
+  (typeof roosterShowModal==='function'?roosterShowModal:showModal)(h);
+}
+function roosterCheckRun(){
+  var lists=_rooAllLists(), sel=[];
+  document.querySelectorAll('input[data-chk]').forEach(function(cb){ if(cb.checked) sel.push(lists[parseInt(cb.getAttribute('data-chk'),10)]); });
+  var out=document.getElementById('chk-result'); if(!out) return;
+  if(sel.length<2){ out.innerHTML='<div style="font-size:13px;color:var(--text3);margin-top:10px">'+escapeHtml(tp('crono_check_pick'))+'</div>'; return; }
+  var weekKey=function(iso){ var p=iso.split('-'), d=new Date(Date.UTC(+p[0],+p[1]-1,+p[2])); var wd=(d.getUTCDay()+6)%7; d.setUTCDate(d.getUTCDate()-wd); return d.toISOString().slice(0,10); };
+  var map={}; // week -> person(lowercase) -> {name, entries:{listName: [dates]}}
+  sel.forEach(function(l){
+    var sp={}; (l.data.sprekers||[]).forEach(function(s){ sp[s.id]=s.naam; });
+    (l.data.rooster||[]).forEach(function(r){
+      var nm=sp[r.sprekerId]; if(!nm||!r.sabbath) return;
+      var wk=weekKey(r.sabbath), key=nm.trim().toLowerCase();
+      var w=map[wk]=map[wk]||{}; var p=w[key]=w[key]||{name:nm,lists:{}};
+      var a=p.lists[l.name]=p.lists[l.name]||[]; if(a.indexOf(r.sabbath)<0) a.push(r.sabbath);
+    });
+  });
+  var loc=(typeof LANG==='string'&&LANG)?LANG:'nl';
+  var fmt=function(iso){ try{ return new Date(iso+'T00:00:00Z').toLocaleDateString(loc,{day:'numeric',month:'short',timeZone:'UTC'}); }catch(e){ return iso; } };
+  var rows='', n=0;
+  Object.keys(map).sort().forEach(function(wk){
+    var items=Object.keys(map[wk]).filter(function(k){ return Object.keys(map[wk][k].lists).length>1; });
+    if(!items.length) return;
+    rows+='<div style="margin-top:10px"><div style="font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.04em">'+escapeHtml(tp('crono_check_week')).toUpperCase()+' '+escapeHtml(fmt(wk))+'</div>';
+    items.forEach(function(k){
+      n++; var p=map[wk][k];
+      rows+='<div style="padding:6px 0;border-top:1px solid var(--border);font-size:13px"><b>'+escapeHtml(p.name)+'</b>: '+Object.keys(p.lists).map(function(ln){ return escapeHtml(ln)+' ('+p.lists[ln].map(fmt).join(', ')+')'; }).join(' · ')+'</div>';
+    });
+    rows+='</div>';
+  });
+  out.innerHTML=n?'<div style="font-size:13px;font-weight:700;margin-top:12px;color:var(--brand)">'+n+' '+escapeHtml(tp('crono_check_found'))+'</div>'+rows:'<div style="font-size:13px;margin-top:12px;color:var(--text2)">'+escapeHtml(tp('crono_check_none'))+'</div>';
+}
+
+(function(){var T={"nl": {"crono_check_btn": "Lijsten vergelijken (zelfde week)", "crono_check_title": "Lijsten vergelijken", "crono_check_help": "Kies de lijsten. Je ziet wie in dezelfde week in meer dan één lijst staat.", "crono_check_run": "Analyseren", "crono_check_need": "Je hebt minstens 2 lijsten nodig.", "crono_check_pick": "Kies minstens 2 lijsten.", "crono_check_none": "Geen overlap: niemand staat in dezelfde week in twee lijsten.", "crono_check_found": "overlappen gevonden", "crono_check_week": "Week van"}, "en": {"crono_check_btn": "Compare lists (same week)", "crono_check_title": "Compare lists", "crono_check_help": "Choose the lists. You will see who is scheduled in more than one list in the same week.", "crono_check_run": "Analyze", "crono_check_need": "You need at least 2 lists.", "crono_check_pick": "Choose at least 2 lists.", "crono_check_none": "No overlap: nobody is in two lists in the same week.", "crono_check_found": "overlaps found", "crono_check_week": "Week of"}, "es": {"crono_check_btn": "Analizar listas (misma semana)", "crono_check_title": "Analizar listas", "crono_check_help": "Elige las listas. Verás quién está en más de una lista la misma semana.", "crono_check_run": "Analizar", "crono_check_need": "Necesitas al menos 2 listas.", "crono_check_pick": "Elige al menos 2 listas.", "crono_check_none": "Sin conflictos: nadie está en dos listas la misma semana.", "crono_check_found": "conflictos encontrados", "crono_check_week": "Semana del"}, "fr": {"crono_check_btn": "Comparer les listes (même semaine)", "crono_check_title": "Comparer les listes", "crono_check_help": "Choisissez les listes. Vous verrez qui figure dans plusieurs listes la même semaine.", "crono_check_run": "Analyser", "crono_check_need": "Il faut au moins 2 listes.", "crono_check_pick": "Choisissez au moins 2 listes.", "crono_check_none": "Aucun conflit : personne n’est dans deux listes la même semaine.", "crono_check_found": "conflits trouvés", "crono_check_week": "Semaine du"}, "de": {"crono_check_btn": "Listen vergleichen (gleiche Woche)", "crono_check_title": "Listen vergleichen", "crono_check_help": "Wähle die Listen. Du siehst, wer in derselben Woche in mehr als einer Liste steht.", "crono_check_run": "Analysieren", "crono_check_need": "Du brauchst mindestens 2 Listen.", "crono_check_pick": "Wähle mindestens 2 Listen.", "crono_check_none": "Keine Überschneidung: niemand steht in derselben Woche in zwei Listen.", "crono_check_found": "Überschneidungen gefunden", "crono_check_week": "Woche vom"}, "ro": {"crono_check_btn": "Analizează listele (aceeași săptămână)", "crono_check_title": "Analizează listele", "crono_check_help": "Alege listele. Vei vedea cine apare în mai multe liste în aceeași săptămână.", "crono_check_run": "Analizează", "crono_check_need": "Ai nevoie de cel puțin 2 liste.", "crono_check_pick": "Alege cel puțin 2 liste.", "crono_check_none": "Fără conflicte: nimeni nu e în două liste în aceeași săptămână.", "crono_check_found": "conflicte găsite", "crono_check_week": "Săptămâna din"}, "it": {"crono_check_btn": "Analizza le liste (stessa settimana)", "crono_check_title": "Analizza le liste", "crono_check_help": "Scegli le liste. Vedrai chi è in più di una lista nella stessa settimana.", "crono_check_run": "Analizza", "crono_check_need": "Servono almeno 2 liste.", "crono_check_pick": "Scegli almeno 2 liste.", "crono_check_none": "Nessun conflitto: nessuno è in due liste nella stessa settimana.", "crono_check_found": "conflitti trovati", "crono_check_week": "Settimana del"}, "pt": {"crono_check_btn": "Analisar listas (mesma semana)", "crono_check_title": "Analisar listas", "crono_check_help": "Escolha as listas. Verá quem está em mais de uma lista na mesma semana.", "crono_check_run": "Analisar", "crono_check_need": "Precisa de pelo menos 2 listas.", "crono_check_pick": "Escolha pelo menos 2 listas.", "crono_check_none": "Sem conflitos: ninguém está em duas listas na mesma semana.", "crono_check_found": "conflitos encontrados", "crono_check_week": "Semana de"}};var D=PRES_STRINGS;Object.keys(T).forEach(function(l){D[l]=D[l]||{};Object.assign(D[l],T[l]);});})();
 
 // INIT
 function finishBootPres(){
