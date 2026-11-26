@@ -13121,6 +13121,21 @@ function clearAllWorkers(){
   if(confirm(tp('clear_all_confirm'))){
     workers={};
     saveLocal();
+    // The Rooster keeps its own people list (sprekers) and schedule, so
+    // wiping the imported worker reports alone used to leave all of those
+    // workers behind. Ask once; churches (kerken) are kept on purpose.
+    try{
+      var rd=roosterData||{};
+      var hasRooster=(rd.sprekers&&rd.sprekers.length)||(rd.rooster&&rd.rooster.length);
+      if(hasRooster&&confirm(tp('clear_rooster_confirm'))){
+        rd.sprekers=[];
+        rd.rooster=[];
+        rd.gesloten=[];
+        rd.geschiedenis={};
+        saveRooster();
+        if(typeof renderRooster==='function')renderRooster();
+      }
+    }catch(e){}
     renderWorkersList();
     renderDashboard();
   }
@@ -18517,6 +18532,7 @@ var PRES_STRINGS = {
     approve_bulk_confirm: 'Alle {n} eerdere maanden goedkeuren? Er wordt één antwoordbestand gedownload dat de werker kan importeren om ze allemaal tegelijk gemarkeerd te krijgen als goedgekeurd.',
     remove_worker_confirm: 'Worker "{n}" verwijderen?',
     clear_all_confirm: 'Alle worker data verwijderen?',
+    clear_rooster_confirm: 'Ook de werkers en de ingevulde planning in het Rooster verwijderen? (De gemeenten blijven staan.)',
     prev: 'Vorige', next: 'Volgende',
     period_month: 'Maand', period_year: 'Jaar',
     stat_total_hours: 'Totaal uren', stat_total_km: 'Totaal km', stat_km_verg2: 'Km verg.', stat_bs_short: 'Bijbelst.',
@@ -18940,7 +18956,7 @@ var PRES_STRINGS = {
     set_org_level: 'Level in the organisation', orglevel_field: 'Field', orglevel_district: 'District', orglevel_union: 'Union', orglevel_division: 'Division', orglevel_gc: 'General Conference',
     set_under_gc: 'Directly under the General Conference', set_under_gc_hint: 'Reports directly to Division + GC instead of via the Union',
     set_km_rate: 'Km reimbursement (€ per km)', set_manage: 'Manage', updates_title: "What's new?", updates_empty: 'No updates yet.',
-    set_delete_all: 'Delete all worker data', set_about: 'About this app',
+    set_delete_all: 'Delete all worker data', clear_all_confirm: 'Delete all worker data?', clear_rooster_confirm: 'Also delete the workers and the filled-in schedule in the Rooster? (Churches are kept.)', set_about: 'About this app',
     set_president: 'Leaders Companion App', set_dev_by: 'Developed by', set_tech_by: 'Technology',
     absent_now: 'ABSENT', save: 'Save', cancel: 'Cancel', delete: 'Delete', close: 'Close',
     add: 'Add', edit: 'Edit', back: '← Back', no_results: 'No results found.', loading: 'Loading...',
@@ -19036,6 +19052,7 @@ var PRES_STRINGS = {
     approve_bulk_confirm: '¿Aprobar los {n} meses anteriores? Se descargará un único archivo de respuesta que el obrero puede importar para marcarlos todos como aprobados de una vez.',
     remove_worker_confirm: '¿Eliminar al obrero "{n}"?',
     clear_all_confirm: '¿Eliminar todos los datos de los obreros?',
+    clear_rooster_confirm: '¿Eliminar también los obreros y la programación del Rooster? (Las iglesias se conservan.)',
     prev: 'Anterior', next: 'Siguiente',
     period_month: 'Mes', period_year: 'Año',
     stat_total_hours: 'Total horas', stat_total_km: 'Total km', stat_km_verg2: 'Reimb. km', stat_bs_short: 'Estudiant.',
