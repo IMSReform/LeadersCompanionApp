@@ -21715,9 +21715,9 @@ function renderRoosterListBar(mode){
       h+='<div class="card" style="padding:0;margin-bottom:10px;overflow:hidden"><div onclick="roosterToggleBody()" style="display:flex;align-items:center;gap:6px;padding:10px 12px;cursor:pointer;background:var(--brand)">';
       h+='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" style="flex-shrink:0;transition:transform .2s;transform:rotate('+(_rooBodyOpen?'180':'0')+'deg)"><polyline points="6 9 12 15 18 9"/></svg>';
       h+='<span style="flex:1;min-width:0;font-size:14px;font-weight:800;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escapeHtml(l.name)+'</span>';
-      h+='<button onclick="event.stopPropagation();roosterToggleSettings()" title="'+escapeHtml(tp('rooster_settings_lbl'))+'" style="'+ib+(_rooSetOpen?';background:var(--brand-light);color:var(--brand)':'')+'">⚙</button>';
+      h+='<button onclick="event.stopPropagation();roosterToggleSettings()" title="'+escapeHtml(tp('rooster_settings_lbl'))+'" style="'+ib+';font-size:28px'+(_rooSetOpen?';background:var(--brand-light);color:var(--brand)':'')+'">⚙</button>';
       h+='<button onclick="event.stopPropagation();roosterRenameList()" title="'+escapeHtml(tp('rooster_list_rename_tip'))+'" style="'+ib+'">✎</button>';
-      if(all.length>1) h+='<button onclick="event.stopPropagation();roosterDeleteList()" title="'+escapeHtml(tp('rooster_list_delete_tip'))+'" style="'+ib+';color:#E74C3C">\u{1F5D1}</button>';
+      if(all.length>1) h+='<button onclick="event.stopPropagation();roosterDeleteList()" title="'+escapeHtml(tp('rooster_list_delete_tip'))+'" style="'+ib+';color:#E74C3C">✕</button>';
       h+='</div></div>';
     } else {
       h+='<div class="card" style="padding:0;margin-bottom:10px;overflow:hidden"><div onclick="roosterOpenList(\''+l.id+'\')" style="display:flex;align-items:center;gap:6px;padding:12px;cursor:pointer;background:var(--brand)">';
