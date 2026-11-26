@@ -21792,7 +21792,7 @@ function renderRoosterMain(){
       h+='ondragover="event.preventDefault();this.style.outline=\'2px solid var(--brand)\'" ';
       h+='ondragleave="this.style.outline=\'\'" ';
       h+='ondrop="dropOnSlot(event,\''+slotId+'\');this.style.outline=\'\'" ';
-      h+='style="padding:4px;border-left:1px solid var(--border);min-height:44px;display:flex;flex-direction:column;align-items:stretch;justify-content:center">';
+      h+='style="'+(roosterData.online&&_rooPres(sab)?'background:rgba(131,163,113,.22);':'')+'padding:4px;border-left:1px solid var(--border);min-height:44px;display:flex;flex-direction:column;align-items:stretch;justify-content:center">';
 
       if(sp||(entry&&entry.customLabel)){
         var isDouble2=sp?(spCountsBySab[sab][sp.id]||0)>1:false;
@@ -21837,7 +21837,7 @@ function renderRoosterMain(){
     h+='<div style="display:grid;grid-template-columns:'+gridCols+';min-width:'+gridMinWidth+';position:sticky;top:0;z-index:5;'+headBg+'">';
     h+='<div style="padding:8px 10px;font-size:11px;font-weight:700;color:rgba(255,255,255,.7)">'+tp('rooster_church_col')+'</div>';
     sabbaths.forEach(function(sab){
-      h+='<div style="padding:8px 4px;font-size:10px;font-weight:700;color:#fff;text-align:center;border-left:1px solid rgba(255,255,255,.2)">'+dateLabel(sab)+(roosterData.online?'<label style="display:flex;align-items:center;justify-content:center;gap:3px;margin-top:4px;font-size:9px;font-weight:600;cursor:pointer;opacity:'+(_rooPres(sab)?'1':'.7')+'"><input type="checkbox" '+(_rooPres(sab)?'checked ':'')+'onchange="roosterTogglePresencial(\''+sab+'\')" style="width:12px;height:12px;margin:0">'+tp('rooster_onsite_lbl')+'</label>':'')+'</div>';
+      h+='<div style="'+(roosterData.online&&_rooPres(sab)?'background:rgba(131,163,113,.9);':'')+'padding:8px 4px;font-size:10px;font-weight:700;color:#fff;text-align:center;border-left:1px solid rgba(255,255,255,.2)">'+dateLabel(sab)+(roosterData.online?'<label style="display:flex;align-items:center;justify-content:center;gap:3px;margin-top:4px;font-size:9px;font-weight:600;cursor:pointer;opacity:'+(_rooPres(sab)?'1':'.7')+'"><input type="checkbox" '+(_rooPres(sab)?'checked ':'')+'onchange="roosterTogglePresencial(\''+sab+'\')" style="width:12px;height:12px;margin:0">'+tp('rooster_onsite_lbl')+'</label>':'')+'</div>';
     });
     h+='</div>';
     rowDefs.forEach(function(rd,ri){
@@ -21860,7 +21860,7 @@ function renderRoosterMain(){
     sabbaths.forEach(function(sab,si){
       var rowBg=si%2===0?'var(--surface)':'var(--surface2)';
       h+='<div style="display:grid;grid-template-columns:'+vCols+';min-width:'+vMinWidth+';background:'+rowBg+';border-top:1px solid var(--border)">';
-      h+='<div style="padding:8px 10px;font-size:12px;font-weight:700;color:var(--text2);white-space:nowrap;display:flex;flex-direction:column;justify-content:center">'+dateLabel(sab)+(roosterData.online?'<label style="display:flex;align-items:center;gap:3px;margin-top:3px;font-size:9px;font-weight:600;color:var(--text3);cursor:pointer"><input type="checkbox" '+(_rooPres(sab)?'checked ':'')+'onchange="roosterTogglePresencial(\''+sab+'\')" style="width:12px;height:12px;margin:0">'+tp('rooster_onsite_lbl')+'</label>':'')+'</div>';
+      h+='<div style="'+(roosterData.online&&_rooPres(sab)?'background:rgba(131,163,113,.22);':'')+'padding:8px 10px;font-size:12px;font-weight:700;color:var(--text2);white-space:nowrap;display:flex;flex-direction:column;justify-content:center">'+dateLabel(sab)+(roosterData.online?'<label style="display:flex;align-items:center;gap:3px;margin-top:3px;font-size:9px;font-weight:600;color:var(--text3);cursor:pointer"><input type="checkbox" '+(_rooPres(sab)?'checked ':'')+'onchange="roosterTogglePresencial(\''+sab+'\')" style="width:12px;height:12px;margin:0">'+tp('rooster_onsite_lbl')+'</label>':'')+'</div>';
       rowDefs.forEach(function(rd){ h+=slotCell(sab,rd.kerk,rd.dienst); });
       h+='</div>';
     });
