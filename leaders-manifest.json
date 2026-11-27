@@ -1,0 +1,36 @@
+{
+  "name": "Leaders Companion App",
+  "short_name": "Leaders Companion",
+  "description": "Overzicht, rooster en goedkeuring voor de president",
+  "display": "standalone",
+  "background_color": "#335781",
+  "theme_color": "#335781",
+  "orientation": "portrait",
+  "start_url": "./",
+  "icons": [
+    {
+      "src": "leaders-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "leaders-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "leaders-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "leaders-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
